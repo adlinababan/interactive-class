@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kelas Interaktif</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%23152036%27/%3E%3Crect x=%277%27 y=%2716%27 width=%275%27 height=%279%27 rx=%271%27 fill=%27%23a8dec5%27/%3E%3Crect x=%2714%27 y=%2711%27 width=%275%27 height=%2714%27 rx=%271%27 fill=%27%23ee7d1c%27/%3E%3Crect x=%2721%27 y=%277%27 width=%275%27 height=%2718%27 rx=%271%27 fill=%27%23fff%27/%3E%3C/svg%3E">
+  <meta name="description" content="Materi kuliah interaktif: setiap konsep adalah diagram animasi yang dijalankan langkah demi langkah.">
+  <link rel="stylesheet" href="shared/style.css">
+  <style>
+    .home { max-width: 980px; margin: 0 auto; padding: 56px 22px 70px; }
+    .home h1 { font-size: clamp(32px, 5vw, 50px); letter-spacing: -.03em; line-height: 1.05; margin: 10px 0 14px; }
+    .home .lead { font-size: 18px; color: var(--ink-2); max-width: 640px; margin: 0 0 36px; }
+    .courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+    .course { display: block; text-decoration: none; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); transition: transform .2s var(--ease), border-color .2s; }
+    .course:hover { transform: translateY(-2px); border-color: #c9cfdb; }
+    .course h2 { margin: 6px 0 6px; font-size: 20px; letter-spacing: -.01em; }
+    .course p { margin: 0 0 12px; color: var(--ink-2); font-size: 14.5px; }
+    .course.soon { opacity: .6; pointer-events: none; }
+    .how { margin-top: 44px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .how div { font-size: 14px; color: var(--ink-2); }
+    .how b { display: block; color: var(--ink); margin-bottom: 2px; }
+  </style>
+</head>
+<body>
+  <main class="home">
+    <div class="eyebrow">Kelas Interaktif</div>
+    <h1>Belajar dengan menjalankan diagramnya sendiri.</h1>
+    <p class="lead">Setiap konsep adalah diagram hidup yang kamu jalankan langkah demi langkah. Lihat apa yang terjadi di dalam program, hitung biayanya, lalu bandingkan pilihan solusinya.</p>
+    <div class="courses">
+      <a class="course" href="algoritma-pemrograman/">
+        <span class="eyebrow">ISYS6973064 · Sistem Informasi</span>
+        <h2>Algoritma dan Pemrograman</h2>
+        <p>Algoritma dasar dengan Python: alur kendali, struktur data, fungsi, file, searching &amp; sorting, dan OOP.</p>
+        <span class="pill ready">8 modul · 25 pelajaran</span>
+      </a>
+    </div>
+    <div class="how">
+      <div><b>Langkah demi langkah</b>Maju, mundur, jeda, atau ulangi setiap animasi. Tombol panah juga bisa dipakai.</div>
+      <div><b>Angka yang berubah</b>Metrik di atas diagram menunjukkan biaya setiap keputusan.</div>
+      <div><b>Tautan ke langkah</b>Setiap langkah punya alamat sendiri, mudah dibagikan di kelas.</div>
+    </div>
+  </main>
+</body>
+</html>
