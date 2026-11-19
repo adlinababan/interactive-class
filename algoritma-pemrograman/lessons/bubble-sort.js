@@ -102,24 +102,26 @@
     level: "Pemula",
     lo: "LO 4",
     learn: [
-      "Cara kerja bubble sort: bandingkan dua tetangga, tukar jika terbalik",
-      "Kenapa nilai terbesar \"menggelembung\" ke kanan di setiap putaran",
-      "Menulis bubble sort di Python dengan dua `for` bersarang",
-      "Optimasi berhenti-awal dengan penanda `tertukar` dan `break`",
-      "Menghitung biaya algoritma: n(n − 1) / 2 perbandingan"
+      { text: "Cara kerja bubble sort: bandingkan dua tetangga, tukar jika terbalik", at: 2 },
+      { text: "Kenapa nilai terbesar \"menggelembung\" ke kanan di setiap putaran", at: 3 },
+      { text: "Menulis bubble sort di Python dengan dua `for` bersarang", at: 5 },
+      { text: "Optimasi berhenti-awal dengan penanda `tertukar` dan `break`", at: 6 },
+      { text: "Menghitung biaya algoritma: n(n − 1) / 2 perbandingan", at: 8 }
     ],
     metrics: [
-      { key: "c", label: "Perbandingan" },
-      { key: "s", label: "Pertukaran" },
-      { key: "p", label: "Putaran" },
-      { key: "t", label: "Total operasi", sum: ["c", "s"], total: true }
+      { key: "c", label: "Perbandingan", icon: "<>" },
+      { key: "s", label: "Pertukaran", icon: "⇄" },
+      { key: "p", label: "Putaran", icon: "↻" },
+      { key: "t", label: "Total operasi", icon: "Σ", sum: ["c", "s"], total: true }
     ],
     legend: [
-      { color: "#ffd7ae", border: "#ee7d1c", label: "Dibandingkan" },
-      { color: "#ee7d1c", label: "Ditukar" },
-      { color: "#a8dec5", label: "Sudah final ✓" }
+      { color: "#ffc68f", border: "#1c2540", label: "Dibandingkan" },
+      { color: "#de7f2b", border: "#1c2540", label: "Ditukar" },
+      { color: "#ade0c7", border: "#1c2540", label: "Sudah final ✓" },
+      { color: "#1fae6f", round: true, label: "Bandingkan →" },
+      { color: "#ee7d1c", round: true, label: "← Hasil" }
     ],
-    sort: { items: ITEMS, code: CODE, newLines: { opt: ["flag", "set", "chk", "brk"] }, listName: "nilai" },
+    sort: { items: ITEMS, code: CODE, newLines: { opt: ["flag", "set", "chk", "brk"] }, listName: "nilai", range: [45, 95] },
     initial,
     steps: [
       {

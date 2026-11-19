@@ -28,6 +28,7 @@ index.html                     Halaman depan (daftar matakuliah)
 shared/
   style.css                    Gaya bersama
   engine.js                    Mesin kursus + pemutar pelajaran
+  iso.{js,css}                 Toolkit diagram isometrik 3D (balok, label, paket, kamera)
   renderers/sort.{js,css}      Renderer panggung untuk pelajaran pengurutan
 algoritma-pemrograman/
   index.html                   Aplikasi kursus
@@ -37,7 +38,9 @@ algoritma-pemrograman/
 
 ## Fitur pemutar
 
+- Panggung isometrik 3D: benda jatuh ke panggung, kolom melompat saat ditukar, paket mengalir di sepanjang koneksi
 - Strip metrik yang menghitung naik/turun di setiap langkah
+- Daftar "Yang akan kamu pelajari" tercentang seiring langkah
 - Stepper bernomor; papan ketik `←` `→` langkah, `R` ulangi, `Spasi` jeda
 - Alamat per langkah, mis. `#/bubble-sort/7`, untuk dibagikan di kelas
 - Progres per modul disimpan di browser mahasiswa

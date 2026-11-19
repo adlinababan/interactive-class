@@ -61,6 +61,28 @@ sort: { items: [{ id: "a", name: "Ayu", v: 70 }], code: { basic: [["id-baris", "
 
 Field frame: `order` (urutan id), `vals` (nilai yang berubah), `cmp` (dua indeks yang dibandingkan), `result` (`"swap"`/`"keep"`), `sortedFrom` (indeks awal zona final), `note`, `tone` (`swap`/`keep`/`done`/`alert`), `code` (versi kode), `line` (id baris yang disorot), `vars`, `revised` (id yang disorot ungu), serta `view: "growth"` atau `view: "summary"` untuk tampilan grafik/ringkasan.
 
+## Toolkit isometrik (`shared/iso.js`)
+
+Semua panggung digambar sebagai diagram isometrik 3D. Toolkit ini bisa dipakai untuk renderer apa pun:
+
+| Fungsi | Kegunaan |
+|---|---|
+| `Iso.scene(el)` | Membuat SVG dengan latar grid isometrik, lapisan (`floor`, `obj`, `conn`, `label`, `fx`), dan kamera |
+| `Iso.box(layer, { theme, drop })` → `.set({ x, y, z, w, d, h, base })` | Balok 3D (kolom, server, alas). `drop` = jeda (ms) animasi jatuh ke panggung |
+| `Iso.pill(layer, { text, cls })` → `.at(x, y, z, dy)` | Label pil yang menempel di titik dunia; berpindah halus |
+| `Iso.connector(layer, sc.arrow)` → `.set({ from, to, arc, packets, both })` | Garis/busur berpanah; `packets: true` menjalankan paket hijau (pergi) dan oranye (kembali) terus-menerus |
+| `sc.camera.fit(points, { pad })` | Membingkai ulang kamera agar semua titik terlihat; hanya bergerak bila perlu |
+| `Iso.tween(ms, step, done)` | Animasi berbasis waktu (menghormati *reduced motion*) |
+
+Tema warna balok: `slate`, `board`, `warm`, `warm-strong`, `ok`, `violet`, `blue`, `sand` (lihat `shared/iso.css`).
+
+Aturan animasi yang dipakai:
+1. Benda baru **jatuh ke panggung** (berurutan, beberapa puluh ms per benda).
+2. Benda yang tetap ada **bergeser** ke posisi baru; benda yang ditukar **melompat** melewati pasangannya.
+3. Koneksi muncul setelah benda mendarat, lalu **paket mengalir** bolak-balik selama langkah aktif.
+4. Label pil menempel di diagram, bukan di luar panggung.
+5. Kartu ringkasan/grafik muncul **di dalam panggung** sementara diagram diredupkan.
+
 ## Renderer baru
 
 Untuk topik lain (flowchart, list, dictionary, call stack), buat `shared/renderers/<nama>.js`:
@@ -73,7 +95,7 @@ Kelas.registerRenderer("nama", {
 });
 ```
 
-Lalu muat file JS dan CSS-nya di `algoritma-pemrograman/index.html`.
+Lalu muat file JS dan CSS-nya di `algoritma-pemrograman/index.html` (setelah `iso.js`).
 
 ## Sebelum commit
 

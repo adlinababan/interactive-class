@@ -222,14 +222,14 @@
     const metrics = h("div", { class: "metrics", style: "--cols:" + L.metrics.length, role: "group", "aria-label": "Metrik" },
       L.metrics.map((mt) => {
         const b = h("b", null, "—");
-        const box = h("div", { class: "metric" + (mt.total ? " total" : "") }, h("small", null, mt.label), b);
+        const box = h("div", { class: "metric" + (mt.total ? " total" : "") }, h("small", null, mt.icon ? h("span", { class: "mi", "aria-hidden": "true" }, mt.icon) : null, mt.label), b);
         this.metricEls[mt.key] = { box, b, cfg: mt };
         return box;
       }));
 
     this.playBtn = h("button", { class: "btn", onclick: () => this.togglePause(), "aria-label": "Jeda animasi" }, "❚❚ Jeda");
     const tools = h("div", { class: "stage-tools" },
-      h("div", { class: "legend" }, (L.legend || []).map((g) => h("span", null, h("i", { style: "background:" + g.color + (g.border ? ";border:2px solid " + g.border : "") }), g.label))),
+      h("div", { class: "legend" }, (L.legend || []).map((g) => h("span", null, h("i", { style: "background:" + g.color + (g.border ? ";border:1.5px solid " + g.border : "") + (g.round ? ";border-radius:50%" : "") }), g.label))),
       h("button", { class: "btn", onclick: () => this.replay(), "aria-label": "Ulangi animasi langkah ini" }, "↺ Ulangi"),
       this.playBtn);
     this.stage = h("div", { class: "stage" });
@@ -252,7 +252,13 @@
 
     this.panelCard = h("div", { class: "card", "aria-live": "polite" });
     this.extra = h("div", { class: "panel-extra" });
-    const learn = h("div", { class: "card box" }, h("h4", null, "YANG AKAN KAMU PELAJARI"), h("ul", null, L.learn.map((t) => h("li", { html: rich(t) }))));
+    this.learnEls = L.learn.map((item) => {
+      const it = typeof item === "string" ? { text: item } : item;
+      const li = h("li", null, h("span", { class: "chk", "aria-hidden": "true" }), h("span", { html: rich(it.text) }));
+      li._at = it.at;
+      return li;
+    });
+    const learn = h("div", { class: "card box learn" }, h("h4", null, "YANG AKAN KAMU PELAJARI"), h("ul", null, this.learnEls));
     const panel = h("aside", { class: "panel" }, this.panelCard, this.extra, learn);
 
     main.append(h("div", { class: "lesson" }, left, panel));
@@ -271,6 +277,11 @@
     const cur = this.stepper.children[k];
     if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "center", behavior: reduceMotion ? "auto" : "smooth" });
     this.renderPanel();
+    this.learnEls.forEach((li) => {
+      const done = li._at != null && k >= li._at;
+      li.classList.toggle("done", done);
+      li.setAttribute("aria-label", done ? "sudah dibahas" : "belum dibahas");
+    });
     if (k === n - 1) this.app.markDone(this.lesson.slug);
     this.play();
   };
@@ -344,6 +355,7 @@
       if (typeof v !== "number") { el.b.textContent = "—"; this.shown[mt.key] = undefined; return; }
       if (instant || typeof prev !== "number" || reduceMotion || prev === v) {
         el.b.textContent = pre + fmt(v) + unit;
+        if (!instant && typeof prev !== "number") { el.box.classList.add("bump"); clearTimeout(el.t); el.t = setTimeout(() => el.box.classList.remove("bump"), 650); }
       } else {
         countUp(el.b, prev, v, pre, unit);
         el.box.classList.add("bump");
@@ -369,7 +381,7 @@
     const L = this.lesson, k = this.k, st = L.steps[k], n = L.steps.length;
     const card = this.panelCard;
     card.innerHTML = "";
-    card.append(h("div", null,
+    card.append(h("div", { class: "step-anim" },
       h("div", { class: "step-no" }, h("span", null, "LANGKAH " + (k + 1) + " / " + n), h("span", { class: "kind " + st.kind }, st.kind)),
       h("h2", null, st.title),
       st.text.map((t) => h("p", { html: rich(t) })),
