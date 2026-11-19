@@ -380,6 +380,7 @@
   Player.prototype.renderPanel = function () {
     const L = this.lesson, k = this.k, st = L.steps[k], n = L.steps.length;
     const card = this.panelCard;
+    card.className = "card step-card k-" + st.kind;
     card.innerHTML = "";
     card.append(h("div", { class: "step-anim" },
       h("div", { class: "step-no" }, h("span", null, "LANGKAH " + (k + 1) + " / " + n), h("span", { class: "kind " + st.kind }, st.kind)),

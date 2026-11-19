@@ -115,11 +115,11 @@
       { key: "t", label: "Total operasi", icon: "Σ", sum: ["c", "s"], total: true }
     ],
     legend: [
-      { color: "#ffc68f", border: "#1c2540", label: "Dibandingkan" },
-      { color: "#de7f2b", border: "#1c2540", label: "Ditukar" },
-      { color: "#ade0c7", border: "#1c2540", label: "Sudah final ✓" },
-      { color: "#1fae6f", round: true, label: "Bandingkan →" },
-      { color: "#ee7d1c", round: true, label: "← Hasil" }
+      { color: "#fcd34d", label: "Dibandingkan" },
+      { color: "#fb923c", label: "Ditukar" },
+      { color: "#7ee8bd", label: "Sudah final" },
+      { color: "#6366f1", round: true, label: "Bandingkan →" },
+      { color: "#f59e0b", round: true, label: "← Hasil" }
     ],
     sort: { items: ITEMS, code: CODE, newLines: { opt: ["flag", "set", "chk", "brk"] }, listName: "nilai", range: [45, 95] },
     initial,

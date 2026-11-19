@@ -19,6 +19,8 @@
   }
   const py = (v) => (v === true ? "True" : v === false ? "False" : v);
   const lerp = (a, b, t) => a + (b - a) * t;
+  // warna avatar per mahasiswa, agar mudah diikuti saat posisinya berpindah
+  const AVATAR = ["#6366f1", "#0ea5e9", "#a855f7", "#ec4899", "#14b8a6", "#f43f5e", "#8b5cf6", "#06b6d4"];
 
   let st = null;
 
@@ -47,8 +49,8 @@
       S.items.forEach((it, i) => {
         const box = Iso.box(sc.layers.obj, { theme: "slate", drop: 220 + i * 90 });
         const val = Iso.pill(sc.layers.label, { cls: "live dark", drop: 520 + i * 90 });
-        const name = Iso.pill(sc.layers.label, { cls: "live name", drop: 120 + i * 60 });
-        st.cols[it.id] = { box, val, name, cur: { u: i, lift: 0, h: st.hOf(it.v) } };
+        const name = Iso.pill(sc.layers.label, { cls: "live name", drop: 120 + i * 60, dot: it.color || AVATAR[i % AVATAR.length] });
+        st.cols[it.id] = { box, val, name, cur: { u: i, lift: 0, h: st.hOf(it.v) }, fin: false };
       });
       st.conn = Iso.connector(sc.layers.conn, sc.arrow);
       st.conn.hide();
@@ -63,6 +65,7 @@
       stage.innerHTML = "";
       stage.append(root);
       Object.assign(st, { root, sc, live, overlay, codeEl: code, varsEl: vars.lastChild, arrEl: arr.lastChild });
+      if (lesson.initial && lesson.initial.order) renderCode(lesson.initial);
 
       const L = n - 1, top = 4.9;
       sc.camera.fit([[-0.2, 1.2, -0.3], [-0.2, -0.2, top], [sx(L) + 1.2, sy(L) - 0.2, top], [sx(L) + 1.2, sy(L) + 1.2, -0.3],
@@ -101,8 +104,11 @@
     });
 
     // warna & teks langsung; geometri lewat tween
+    const newlyFinal = [];
     f.order.forEach((id) => {
       const c = st.cols[id], t = tg[id];
+      if (t.fin && !c.fin && !instant) newlyFinal.push(id);
+      c.fin = t.fin;
       c.box.theme(t.theme);
       c.val.text(String(t.v)).cls("live dark" + (t.fin ? " okv" : ""));
       c.name.text(st.items[id].name + (t.fin ? " ✓" : "") + (t.isRev ? " · revisi" : "")).cls("live name" + (t.fin ? " ok" : "") + (t.isRev ? " violet" : ""));
@@ -126,6 +132,10 @@
       });
       depthSort(f.order, hopper);
     }, () => {
+      newlyFinal.forEach((id, k) => {
+        const t = tg[id];
+        setTimeout(() => st && Iso.sparkle(st.sc.layers.fx, sx(t.u) + 0.5, sy(t.u) + 0.5, t.h + 0.2), k * 90);
+      });
       if (cmp.length && f.result !== "swap") {
         const A = tg[f.order[cmp[0]]], B = tg[f.order[cmp[1]]];
         st.conn.set({ from: [sx(A.u) + 0.5, sy(A.u) + 0.5, A.lift + A.h + 0.1], to: [sx(B.u) + 0.5, sy(B.u) + 0.5, B.lift + B.h + 0.1], arc: 1.0, packets: true, both: true, dur: 1.3 });

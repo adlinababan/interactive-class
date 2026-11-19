@@ -1,63 +1,71 @@
-/* Iso — gaya diagram isometrik */
-.iso-svg { display: block; width: 100%; height: 420px; background: #f6f7fb; }
-.iso-gridline { stroke: #e4e8f0; stroke-width: 1; fill: none; }
-.iso-root { transition: opacity .35s, filter .35s; }
-.iso-svg.dim .iso-root { opacity: .16; filter: blur(1.5px); }
+/* Iso — gaya diagram isometrik (balok berkilau, bayangan lembut, cahaya) */
+.iso-svg { display: block; width: 100%; height: 440px; background: #f4f2ff; }
+.iso-dot { fill: #c7c9f5; opacity: .75; }
+.iso-root { transition: opacity .4s, filter .4s; }
+.iso-svg.dim .iso-root { opacity: .14; filter: blur(2px); }
 
-/* Balok: warna per tema lewat variabel CSS */
-.iso-box polygon { stroke: #1c2540; stroke-width: 2; stroke-linejoin: round; transition: fill .3s; }
+/* Balok: warna solid per tema (bertransisi), plus lapisan kilau & bayangan sisi */
+.iso-box .iso-body { transition: filter .35s; }
+.iso-box polygon { stroke-linejoin: round; transition: fill .35s, stroke .35s; }
+.iso-box .f-top, .iso-box .f-left, .iso-box .f-right { stroke: var(--edge); stroke-width: 1.1; }
 .iso-box .f-top { fill: var(--top); }
 .iso-box .f-left { fill: var(--left); }
 .iso-box .f-right { fill: var(--right); }
-.iso-box .iso-shadow { fill: rgba(21, 32, 54, .2); stroke: none; }
-.t-slate { --top: #eef2f8; --left: #d3dbe8; --right: #b6c2d7; }
-.t-board { --top: #ffffff; --left: #e6e9f0; --right: #d2d8e3; }
-.t-warm { --top: #ffe4c6; --left: #ffc68f; --right: #f3a45d; }
-.t-warm-strong { --top: #ffc58e; --left: #f59c4e; --right: #de7f2b; }
-.t-ok { --top: #dcf4e8; --left: #ade0c7; --right: #84cbaa; }
-.t-violet { --top: #eee6fe; --left: #cfbef7; --right: #b19deb; }
-.t-blue { --top: #e2eaff; --left: #bccdfb; --right: #98b1f2; }
-.t-sand { --top: #fff4d9; --left: #f6dda2; --right: #e8c676; }
-.board polygon { stroke-width: 1.6; }
+.iso-box .f-gloss, .iso-box .f-shade { stroke: none; pointer-events: none; }
+.iso-box .f-edge { fill: none; stroke: #fff; stroke-opacity: .85; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.iso-box .iso-shadow { fill: #1e1b4b; stroke: none; }
 
-.iso-tile { fill: transparent; stroke: #cdd4e1; stroke-width: 1.4; stroke-dasharray: 4 4; transition: fill .3s, stroke .3s; }
-.iso-tile.cmp { fill: #ffe9d3; stroke: #ee7d1c; stroke-dasharray: none; }
-.iso-tile.ok { fill: #e1f5ec; stroke: #84cbaa; stroke-dasharray: none; }
+.t-slate  { --top: #f3f2ff; --left: #dcd9fc; --right: #c2bdf5; --edge: rgba(79, 70, 229, .32); }
+.t-board  { --top: #ffffff; --left: #eceafb; --right: #dbd8f2; --edge: rgba(99, 102, 241, .22); }
+.t-warm   { --top: #fff4cc; --left: #fcd34d; --right: #f5a30b; --edge: rgba(180, 83, 9, .45); }
+.t-warm-strong { --top: #ffe1b8; --left: #fb923c; --right: #ea6a0c; --edge: rgba(154, 52, 18, .5); }
+.t-ok     { --top: #d9fbe9; --left: #7ee8bd; --right: #34d399; --edge: rgba(4, 120, 87, .42); }
+.t-violet { --top: #fbebff; --left: #f0abfc; --right: #d65ee9; --edge: rgba(134, 25, 143, .42); }
+.t-blue   { --top: #e3f3ff; --left: #8ad3fb; --right: #38bdf8; --edge: rgba(3, 105, 161, .4); }
+.t-sand   { --top: #fff8e1; --left: #fde68a; --right: #f5c542; --edge: rgba(161, 98, 7, .4); }
+
+/* Cahaya status */
+.iso-box.t-warm .iso-body, .iso-box.t-warm-strong .iso-body { filter: url(#iso-glow-amber); }
+.iso-box.board.t-ok .iso-body { filter: url(#iso-glow-emerald); }
+.board .iso-shadow { opacity: .22 !important; }
+
+.iso-tile { fill: transparent; stroke: #cdd0f2; stroke-width: 1.4; stroke-dasharray: 4 4; transition: fill .3s, stroke .3s; }
+.iso-tile.cmp { fill: #fff4cc; stroke: #f59e0b; stroke-dasharray: none; }
+.iso-tile.ok { fill: #d9fbe9; stroke: #34d399; stroke-dasharray: none; }
 
 /* Label pil */
 .iso-pill { transition: transform .5s cubic-bezier(.3, .7, .2, 1), opacity .3s; }
 .iso-pill.live { transition: opacity .3s; }
-.iso-pill rect { fill: #fff; stroke: #1c2540; stroke-width: 1.8; transition: fill .3s, stroke .3s; }
-.iso-pill text { font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace; font-size: 12.5px; font-weight: 700; fill: #1c2540; text-anchor: middle; }
-.iso-pill.dark rect { fill: #1c2540; }
+.iso-pill > g { filter: url(#iso-lift); }
+.iso-pill rect { fill: #fff; stroke: #e0e0fb; stroke-width: 1.2; transition: fill .3s, stroke .3s; }
+.iso-pill text { font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12.5px; font-weight: 700; fill: #1e1b4b; text-anchor: middle; }
+.iso-pill.dark rect { fill: url(#iso-g-ink); stroke: none; }
 .iso-pill.dark text { fill: #fff; }
-.iso-pill.okv rect { fill: #1b9466; stroke: #136e4b; }
-.iso-pill.name rect { fill: #fff; stroke: #c3cbd9; }
-.iso-pill.name.ok rect { fill: #e3f5ed; stroke: #84cbaa; }
-.iso-pill.name.ok text { fill: #136e4b; }
-.iso-pill.name.violet rect { fill: #f1ebfd; stroke: #7b4fd6; }
-.iso-pill.name.violet text { fill: #5a34b0; }
-.iso-pill.ptr rect { fill: #ee7d1c; stroke: #c4600c; }
+.iso-pill.okv rect { fill: url(#iso-g-emerald); }
+.iso-pill.name text { font-family: "Plus Jakarta Sans", system-ui, sans-serif; font-weight: 700; font-size: 12.5px; }
+.iso-pill.name.ok rect { fill: #ecfdf5; stroke: #6ee7b7; }
+.iso-pill.name.ok text { fill: #047857; }
+.iso-pill.name.violet rect { fill: #fdf4ff; stroke: #e879f9; }
+.iso-pill.name.violet text { fill: #a21caf; }
+.iso-pill.ptr rect { fill: url(#iso-g-amber); stroke: none; }
 .iso-pill.ptr text { fill: #fff; }
-.iso-pill.note rect { stroke-width: 2; }
+.iso-pill.note rect { stroke: none; fill: #fff; }
 .iso-pill.note text { font-size: 13.5px; }
-.iso-pill.note.swap rect { fill: #fff1e4; stroke: #ee7d1c; }
-.iso-pill.note.swap text { fill: #9a4a06; }
-.iso-pill.note.keep rect { fill: #e8eefe; stroke: #2357e8; }
-.iso-pill.note.keep text { fill: #1b47c4; }
-.iso-pill.note.done rect { fill: #e3f5ed; stroke: #1b9466; }
-.iso-pill.note.done text { fill: #136e4b; }
-.iso-pill.note.alert rect { fill: #f1ebfd; stroke: #7b4fd6; }
-.iso-pill.note.alert text { fill: #5a34b0; }
+.iso-pill.note.swap rect { fill: url(#iso-g-amber); }
+.iso-pill.note.keep rect { fill: url(#iso-g-indigo); }
+.iso-pill.note.done rect { fill: url(#iso-g-emerald); }
+.iso-pill.note.alert rect { fill: url(#iso-g-fuchsia); }
+.iso-pill.note.swap text, .iso-pill.note.keep text, .iso-pill.note.done text, .iso-pill.note.alert text { fill: #fff; }
 
-/* Garis, panah, paket */
+/* Garis, panah, paket bercahaya */
 .iso-conn { transition: opacity .3s; }
-.iso-line { fill: none; stroke: #1c2540; stroke-width: 2; }
-.iso-line.dashed { stroke-dasharray: 6 6; }
-.iso-arrowhead { fill: #1c2540; }
-.iso-packet { stroke: #fff; stroke-width: 2; }
-.iso-packet.go { fill: #1fae6f; }
-.iso-packet.back { fill: #ee7d1c; }
+.iso-line { fill: none; stroke: #8b8ff0; stroke-width: 2.2; stroke-linecap: round; }
+.iso-line.dashed { stroke-dasharray: 2 7; }
+.iso-arrowhead { fill: #6366f1; }
+.iso-packet .halo { opacity: .28; }
+.iso-packet .core { stroke: #fff; stroke-width: 2; }
+.iso-packet.go .halo, .iso-packet.go .core { fill: #6366f1; }
+.iso-packet.back .halo, .iso-packet.back .core { fill: #f59e0b; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

@@ -50,16 +50,44 @@
     const id = "iso" + ++uid;
     const svg = el("svg", { class: "iso-svg", role: "img", "aria-label": opts.label || "Diagram", preserveAspectRatio: "xMidYMid meet" }, container);
     const defs = el("defs", null, svg);
-    const pat = el("pattern", { id: id + "-grid", width: (2 * C * U).toFixed(2), height: U, patternUnits: "userSpaceOnUse" }, defs);
-    el("path", { d: `M0 0 L${2 * C * U} ${U} M${2 * C * U} 0 L0 ${U}`, class: "iso-gridline" }, pat);
-    const mk = el("marker", { id: id + "-arrow", viewBox: "0 0 10 10", refX: 8.5, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
-    el("path", { d: "M0 1 L9 5 L0 9 z", class: "iso-arrowhead" }, mk);
-    el("rect", { x: -4000, y: -4000, width: 8000, height: 8000, fill: `url(#${id}-grid)`, class: "iso-bg" }, svg);
+    // grid titik di setiap simpul kisi isometrik
+    const gw = 2 * C * U;
+    const pat = el("pattern", { id: id + "-grid", width: gw.toFixed(2), height: U, patternUnits: "userSpaceOnUse" }, defs);
+    [[0, 0], [gw, 0], [0, U], [gw, U], [gw / 2, U / 2]].forEach(([cx, cy]) => el("circle", { cx, cy, r: 1.5, class: "iso-dot" }, pat));
+    const mk = el("marker", { id: id + "-arrow", viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 6.5, markerHeight: 6.5, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M1 1.5 L9 5 L1 8.5 Q3 5 1 1.5 z", class: "iso-arrowhead" }, mk);
+    sharedDefs(defs);
+    el("rect", { x: -4000, y: -4000, width: 8000, height: 8000, fill: "url(#iso-sky)", class: "iso-bg" }, svg);
+    el("rect", { x: -4000, y: -4000, width: 8000, height: 8000, fill: `url(#${id}-grid)`, class: "iso-bg-dots" }, svg);
     const root = el("g", { class: "iso-root" }, svg);
     const layers = {};
     ["floor", "obj", "conn", "label", "fx"].forEach((n) => (layers[n] = el("g", { class: "iso-" + n }, root)));
     const camera = makeCamera(svg);
     return { svg, root, layers, camera, arrow: `url(#${id}-arrow)` };
+  }
+
+  /** Gradasi & filter bersama (id tetap; satu panggung per halaman). */
+  function sharedDefs(defs) {
+    const lin = (id, stops, attrs) => {
+      const g = el("linearGradient", Object.assign({ id }, attrs || { x1: 0, y1: 0, x2: 0, y2: 1 }), defs);
+      stops.forEach(([o, c, a]) => el("stop", { offset: o, "stop-color": c, "stop-opacity": a == null ? 1 : a }, g));
+    };
+    lin("iso-sky", [[0, "#eef0ff"], [0.55, "#f7f3ff"], [1, "#fff6ec"]]);
+    lin("iso-gloss", [[0, "#ffffff", 0.75], [0.6, "#ffffff", 0.08], [1, "#ffffff", 0]], { x1: 0, y1: 0, x2: 1, y2: 1 });
+    lin("iso-shade", [[0, "#1e1b4b", 0], [1, "#1e1b4b", 0.16]]);
+    lin("iso-g-indigo", [[0, "#6366f1"], [1, "#8b5cf6"]], { x1: 0, y1: 0, x2: 1, y2: 0 });
+    lin("iso-g-amber", [[0, "#f59e0b"], [1, "#f97316"]], { x1: 0, y1: 0, x2: 1, y2: 0 });
+    lin("iso-g-emerald", [[0, "#10b981"], [1, "#059669"]], { x1: 0, y1: 0, x2: 1, y2: 0 });
+    lin("iso-g-fuchsia", [[0, "#d946ef"], [1, "#a855f7"]], { x1: 0, y1: 0, x2: 1, y2: 0 });
+    lin("iso-g-ink", [[0, "#312e81"], [1, "#1e1b4b"]], { x1: 0, y1: 0, x2: 0, y2: 1 });
+    const soft = el("filter", { id: "iso-soft", x: "-50%", y: "-50%", width: "200%", height: "200%" }, defs);
+    el("feGaussianBlur", { stdDeviation: 3.2 }, soft);
+    const lift = el("filter", { id: "iso-lift", x: "-30%", y: "-40%", width: "160%", height: "200%" }, defs);
+    el("feDropShadow", { dx: 0, dy: 2, stdDeviation: 2.2, "flood-color": "#1e1b4b", "flood-opacity": 0.2 }, lift);
+    [["amber", "#f59e0b"], ["emerald", "#10b981"], ["indigo", "#6366f1"]].forEach(([n, c]) => {
+      const f = el("filter", { id: "iso-glow-" + n, x: "-60%", y: "-60%", width: "220%", height: "220%" }, defs);
+      el("feDropShadow", { dx: 0, dy: 0, stdDeviation: 5, "flood-color": c, "flood-opacity": 0.75 }, f);
+    });
   }
 
   function makeCamera(svg) {
@@ -89,10 +117,14 @@
     const g = el("g", { class: "iso-box t-" + (o.theme || "slate") + (o.cls ? " " + o.cls : "") }, parent);
     const inner = el("g", null, g);
     if (o.drop != null) dropIn(inner, o.drop);
-    const shadow = el("polygon", { class: "iso-shadow" }, inner);
-    const left = el("polygon", { class: "f-left" }, inner);
-    const right = el("polygon", { class: "f-right" }, inner);
-    const top = el("polygon", { class: "f-top" }, inner);
+    const shadow = el("polygon", { class: "iso-shadow", filter: "url(#iso-soft)" }, inner);
+    const body = el("g", { class: "iso-body" }, inner);
+    const left = el("polygon", { class: "f-left" }, body);
+    const right = el("polygon", { class: "f-right" }, body);
+    const shade = el("polygon", { class: "f-shade", fill: "url(#iso-shade)" }, body);
+    const top = el("polygon", { class: "f-top" }, body);
+    const gloss = el("polygon", { class: "f-gloss", fill: "url(#iso-gloss)" }, body);
+    const edge = el("polyline", { class: "f-edge" }, body);
     const s = { x: 0, y: 0, z: 0, w: 1, d: 1, h: 1, base: 0 };
     return {
       g, state: s,
@@ -102,9 +134,13 @@
         top.setAttribute("points", pts([P(x, y, z + h), P(x + w, y, z + h), P(x + w, y + d, z + h), P(x, y + d, z + h)]));
         left.setAttribute("points", pts([P(x, y + d, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x, y + d, z + h)]));
         right.setAttribute("points", pts([P(x + w, y, z), P(x + w, y + d, z), P(x + w, y + d, z + h), P(x + w, y, z + h)]));
+        shade.setAttribute("points", right.getAttribute("points"));
+        gloss.setAttribute("points", top.getAttribute("points"));
+        edge.setAttribute("points", pts([P(x, y + d, z + h), P(x + w, y + d, z + h), P(x + w, y, z + h)]));
         const lift = Math.max(0, z - base);
-        shadow.setAttribute("points", pts([P(x, y, base), P(x + w, y, base), P(x + w, y + d, base), P(x, y + d, base)]));
-        shadow.style.opacity = Math.min(0.6, lift * 0.9).toFixed(2);
+        const sp = 0.12 + lift * 0.18;
+        shadow.setAttribute("points", pts([P(x - sp, y - sp, base), P(x + w + sp, y - sp, base), P(x + w + sp, y + d + sp, base), P(x - sp, y + d + sp, base)]));
+        shadow.style.opacity = (0.26 - Math.min(0.14, lift * 0.1)).toFixed(2);
         return this;
       },
       theme(t) { g.setAttribute("class", "iso-box t-" + t + (o.cls ? " " + o.cls : "")); return this; }
@@ -118,6 +154,34 @@
       [{ transform: `translateY(${-dist}px)`, opacity: 0 }, { opacity: 1, offset: 0.6 }, { transform: "translateY(0)", opacity: 1 }],
       { duration: 750, delay, easing: "cubic-bezier(.2,.9,.25,1.15)", fill: "backwards" }
     );
+  }
+
+  /** Efek kilau: cincin cahaya + partikel bintang memancar dari satu titik dunia, lalu hilang. */
+  function sparkle(layer, x, y, z, color = "#10b981", count = 14) {
+    if (reduceMotion || !layer.animate) return;
+    const [cx, cy] = P(x, y, z);
+    // cincin isometrik (elips pipih) yang membesar dan memudar
+    const ring = el("ellipse", { cx: 0, cy: 0, rx: 30, ry: 17, fill: "none", stroke: color, "stroke-width": 3 }, layer);
+    ring.animate([
+      { transform: `translate(${cx}px, ${cy}px) scale(.4)`, opacity: .95 },
+      { transform: `translate(${cx}px, ${cy}px) scale(1.9)`, opacity: 0 }
+    ], { duration: 750, easing: "cubic-bezier(.2,.7,.3,1)" }).onfinish = () => ring.remove();
+    const palette = [color, "#fbbf24", "#6366f1", "#ec4899"];
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + Math.random() * 0.35;
+      const dist = 40 + Math.random() * 34;
+      const star = i % 2 === 0;
+      const c = palette[i % palette.length];
+      const node = star
+        ? el("path", { d: "M0 -9 L2.3 -2.3 L9 0 L2.3 2.3 L0 9 L-2.3 2.3 L-9 0 L-2.3 -2.3 Z", fill: c }, layer)
+        : el("circle", { r: 3.6, fill: c }, layer);
+      const dx = Math.cos(a) * dist, dy = Math.sin(a) * dist * 0.7;
+      node.animate([
+        { transform: `translate(${cx}px, ${cy}px) scale(.2) rotate(0deg)`, opacity: 1 },
+        { transform: `translate(${cx + dx}px, ${cy + dy - 22}px) scale(1.15) rotate(90deg)`, opacity: 1, offset: 0.5 },
+        { transform: `translate(${cx + dx * 1.2}px, ${cy + dy * 1.2 - 4}px) scale(.2) rotate(180deg)`, opacity: 0 }
+      ], { duration: 950 + Math.random() * 300, easing: "cubic-bezier(.2,.7,.3,1)" }).onfinish = () => node.remove();
+    }
   }
 
   /** Ubin datar di lantai (untuk menandai slot/zona). */
@@ -135,6 +199,7 @@
     const g = el("g", { class: "iso-pill " + (o.cls || "") }, parent);
     const inner = el("g", null, g);
     const r = el("rect", { rx: 12, ry: 12, height: 24 }, inner);
+    const dot = o.dot ? el("circle", { r: 5, cy: 12, fill: o.dot, class: "iso-pill-dot" }, inner) : null;
     const t = el("text", { y: 16.5 }, inner);
     if (o.drop != null) dropIn(inner, o.drop, 24);
     let cur = null, placed = false;
@@ -143,8 +208,12 @@
       text(s) {
         if (s === cur) return api;
         cur = s; t.textContent = s;
-        const w = Math.max(28, s.length * 7.4 + 22);
-        r.setAttribute("width", w); r.setAttribute("x", -w / 2); t.setAttribute("x", 0);
+        let tw = 0;
+        try { tw = t.getComputedTextLength(); } catch (e) { /* belum dirender */ }
+        if (!tw) tw = s.length * 7.6;
+        const w = Math.max(28, tw + 24 + (dot ? 14 : 0));
+        r.setAttribute("width", w); r.setAttribute("x", -w / 2); t.setAttribute("x", dot ? 7 : 0);
+        if (dot) dot.setAttribute("cx", -w / 2 + 13);
         return api;
       },
       at(x, y, z, dy = 0) {
@@ -193,11 +262,13 @@
   }
 
   function packet(parent, d, kind, dur, begin) {
-    const c = el("circle", { r: 5.5, class: "iso-packet " + kind }, parent);
+    const c = el("g", { class: "iso-packet " + kind }, parent);
+    el("circle", { r: 9, class: "halo" }, c);
+    el("circle", { r: 5, class: "core" }, c);
     // begin relatif terhadap waktu dokumen: dua paket tetap berselang setengah siklus
     el("animateMotion", { dur: dur + "s", begin: begin + "s", repeatCount: "indefinite", path: d, keyPoints: "0;1", keyTimes: "0;1", calcMode: "spline", keySplines: ".4 0 .2 1" }, c);
     return c;
   }
 
-  window.Iso = { U, C, S, P, el, tween, ease, scene, box, tile, pill, connector, dropIn, reduceMotion };
+  window.Iso = { U, C, S, P, el, tween, ease, scene, box, tile, pill, connector, dropIn, sparkle, reduceMotion };
 })();
