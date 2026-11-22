@@ -48,7 +48,7 @@ window.COURSE = {
       lessons: [
         { slug: "fungsi-argumen", title: "Fungsi & Argumen", goal: "Mendefinisikan fungsi dan mengoper argumen posisi, kata kunci, dan *args.", sessions: "Teori 8 · Lab 7" },
         { slug: "return-call-stack", title: "Return & Call Stack", goal: "Ke mana program kembali setelah fungsi selesai.", sessions: "Teori 8 · Lab 7" },
-        { slug: "modul", title: "Menyimpan Fungsi dalam Modul", goal: "Memecah program ke beberapa file dan mengimpornya.", sessions: "Teori 8 · Lab 8" }
+        { slug: "modul", title: "Modul: Mengimpor Fungsi & Class", goal: "Memecah program ke beberapa file, lalu mengimpor fungsi dan class (from car import Car).", sessions: "Teori 8–9 · Lab 8" }
       ]
     },
     {
@@ -69,11 +69,13 @@ window.COURSE = {
       ]
     },
     {
-      id: "07", title: "Pemrograman Berorientasi Objek", lo: ["LO 3", "LO 4"],
+      id: "07", title: "Pemrograman Berorientasi Objek", lo: ["LO 2", "LO 3"],
       lessons: [
-        { slug: "class-objek", title: "Class & Objek", goal: "Satu cetakan, banyak objek dengan data masing-masing.", sessions: "Teori 9 · Lab 9" },
+        { slug: "class-objek", title: "Class & Objek", goal: "Satu cetakan, banyak objek: __init__, self, atribut, dan method.", sessions: "Teori 9 · Lab 9", ready: true },
+        { slug: "atribut-objek", title: "Mengubah Atribut Objek", goal: "Nilai default, mengubah langsung vs lewat method, dan menaikkan nilai.", sessions: "Teori 9 · Lab 9", ready: true },
+        { slug: "inheritance", title: "Inheritance", goal: "Class anak mewarisi class induk: super(), override, dan objek sebagai atribut.", sessions: "Teori 9 · Lab 9", ready: true },
         { slug: "enkapsulasi", title: "Enkapsulasi", goal: "Melindungi data objek lewat method.", sessions: "Teori 13 · Lab 9" },
-        { slug: "inheritance-polymorphism", title: "Inheritance & Polymorphism", goal: "Mewarisi perilaku dan menimpanya.", sessions: "Teori 9, 13" }
+        { slug: "polymorphism", title: "Polymorphism", goal: "Satu nama method, perilaku berbeda di tiap class.", sessions: "Teori 13" }
       ]
     },
     {

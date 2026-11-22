@@ -1,0 +1,76 @@
+/* Renderer "oop": class sebagai cetakan, objek, variabel, jalur pemanggilan, konsol output */
+.oop .iso-svg { height: 470px; }
+.oop-bottom { grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); }
+.oop .sv-code { max-height: 330px; overflow: auto; scroll-behavior: smooth; }
+.sv-code .st { color: #fde68a; }
+
+/* Konsol output */
+.oop-out { background: #0f0d26; border-radius: 16px; padding: 12px 14px; color: #e4e2ff; font-family: var(--mono); font-size: 12.5px; display: flex; flex-direction: column; min-height: 140px; max-height: 330px; }
+.oop-out h5 { margin: 0 0 8px; font-family: var(--sans); font-size: 10.5px; letter-spacing: .12em; color: #8e8bc7; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.oop-out h5::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 8px #34d399; }
+.oop-lines { overflow: auto; flex: 1; }
+.oop-out .ol { padding: 2px 0 2px 16px; position: relative; white-space: pre-wrap; line-height: 1.5; }
+.oop-out .ol::before { content: "›"; position: absolute; left: 2px; color: #6d6aa8; }
+.oop-out .ol.err { color: #fda4af; }
+.oop-out .ol.err::before { content: "✕"; color: #fb7185; }
+.oop-out .ol.empty { color: #6d6aa8; font-style: italic; }
+.oop-out .ol.empty::before { content: ""; }
+.oop-out .ol.fresh { animation: olIn .5s var(--ease) both; background: linear-gradient(90deg, rgba(99, 102, 241, .28), transparent 70%); border-radius: 6px; }
+@keyframes olIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+/* Tema balok tambahan */
+.t-rose { --top: #ffe4e8; --left: #fda4af; --right: #fb7185; --edge: rgba(190, 18, 60, .45); }
+.t-teal { --top: #dcfaf6; --left: #7ee6d9; --right: #2dd4bf; --edge: rgba(15, 118, 110, .45); }
+.iso-box.miss .f-top, .iso-box.miss .f-left, .iso-box.miss .f-right { stroke-dasharray: 5 4; }
+
+/* Pil: kepala class, member, atribut objek, variabel */
+.iso-pill.cls-head rect { fill: url(#iso-g-indigo); stroke: none; }
+.iso-pill.cls-head text { fill: #fff; font-size: 13px; }
+.iso-pill.mem rect { fill: #fff; stroke: #c7c4f3; }
+.iso-pill.mem.method text { fill: #4338ca; }
+.iso-pill.mem.attr rect { fill: #f3f2ff; stroke: #dcd9fc; }
+.iso-pill.mem.attr text { fill: #5b5895; font-weight: 600; }
+.iso-pill.obj-head rect { fill: url(#iso-g-ink); stroke: none; }
+.iso-pill.obj-head text { fill: #fff; }
+.iso-pill.attr-val rect { fill: #fff; stroke: #fcd9a0; }
+.iso-pill.attr-val text { fill: #7c2d12; font-weight: 700; }
+.iso-pill.var rect { fill: #eef0ff; stroke: #6366f1; stroke-width: 1.6; }
+.iso-pill.var text { fill: #4338ca; font-weight: 800; }
+.iso-pill.loose rect { fill: #fff; stroke: #fb7185; stroke-dasharray: 4 3; stroke-width: 1.6; }
+.iso-pill.loose text { fill: #9f1239; }
+.iso-pill.link-label rect { fill: #fff; stroke: #c7c4f3; }
+.iso-pill.link-label text { fill: #6366f1; font-size: 11.5px; }
+.iso-pill.link-label.inherit rect { fill: #faf5ff; stroke: #c084fc; }
+.iso-pill.link-label.inherit text { fill: #7e22ce; }
+
+/* Penanda keadaan pada pil (marks) */
+.iso-pill.m-hl rect { fill: #fff4cc !important; stroke: #f59e0b !important; stroke-width: 2.2; }
+.iso-pill.m-hl > g { filter: url(#iso-glow-amber); }
+.iso-pill.m-hl text { fill: #92400e !important; }
+.iso-pill.m-chg rect { fill: url(#iso-g-amber) !important; stroke: none !important; }
+.iso-pill.m-chg text { fill: #fff !important; }
+.iso-pill.m-chg > g { filter: url(#iso-glow-amber); }
+.iso-pill.m-err rect { fill: #ffe4e8 !important; stroke: #e11d48 !important; stroke-width: 2.2; }
+.iso-pill.m-err text { fill: #be123c !important; }
+.iso-pill.m-ok rect { fill: url(#iso-g-emerald) !important; stroke: none !important; }
+.iso-pill.m-ok text { fill: #fff !important; }
+.iso-pill.m-ok > g { filter: url(#iso-glow-emerald); }
+.iso-pill.m-new rect { fill: #faf5ff !important; stroke: #a855f7 !important; stroke-width: 2; }
+.iso-pill.m-new text { fill: #7e22ce !important; }
+.iso-pill.m-miss rect { fill: #fff !important; stroke: #fb7185 !important; stroke-dasharray: 4 3; }
+.iso-pill.m-miss text { fill: #be123c !important; }
+.iso-pill.m-over { opacity: .45; }
+.iso-pill.m-over text { text-decoration: line-through; }
+.iso-pill.m-ghost { opacity: .55; }
+.iso-pill.m-ghost rect { stroke-dasharray: 4 3; }
+
+/* Jalur pemanggilan method */
+.oop-flow-line { fill: none; stroke: #a5b4fc; stroke-width: 2.2; stroke-dasharray: 2 6; stroke-linecap: round; }
+.oop-flow.err .oop-flow-line { stroke: #fda4af; }
+.iso-packet.err .halo, .iso-packet.err .core { fill: #e11d48; }
+
+@media (max-width: 900px) {
+  .oop .iso-svg { height: auto; aspect-ratio: 1.3; }
+  .oop-bottom { grid-template-columns: minmax(0, 1fr); }
+  .oop-out { min-height: 100px; }
+}

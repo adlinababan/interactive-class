@@ -6,7 +6,7 @@ Materi kuliah interaktif. Setiap konsep adalah **diagram hidup yang dijalankan l
 
 | Folder | Matakuliah | Status |
 |---|---|---|
-| [`algoritma-pemrograman/`](algoritma-pemrograman/) | ISYS6973064 Algorithm and Programming (Sistem Informasi, BINUS) | 1 dari 25 pelajaran: **Bubble Sort** |
+| [`algoritma-pemrograman/`](algoritma-pemrograman/) | ISYS6973064 Algorithm and Programming (Sistem Informasi, BINUS) | 4 dari 27 pelajaran: **Bubble Sort**, **Class & Objek**, **Mengubah Atribut Objek**, **Inheritance** |
 
 ## Menjalankan
 
@@ -30,10 +30,11 @@ shared/
   engine.js                    Mesin kursus + pemutar pelajaran
   iso.{js,css}                 Toolkit diagram isometrik 3D (balok, label, paket, kamera)
   renderers/sort.{js,css}      Renderer panggung untuk pelajaran pengurutan
+  renderers/oop.{js,css}       Renderer panggung untuk class, objek, dan inheritance
 algoritma-pemrograman/
   index.html                   Aplikasi kursus
   course.js                    Kerangka modul & pelajaran (dari Course Outline)
-  lessons/bubble-sort.js       Data pelajaran Bubble Sort
+  lessons/*.js                 Data pelajaran (bubble-sort, class-objek, atribut-objek, inheritance)
 ```
 
 ## Fitur pemutar

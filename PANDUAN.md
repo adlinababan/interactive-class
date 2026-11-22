@@ -61,6 +61,25 @@ sort: { items: [{ id: "a", name: "Ayu", v: 70 }], code: { basic: [["id-baris", "
 
 Field frame: `order` (urutan id), `vals` (nilai yang berubah), `cmp` (dua indeks yang dibandingkan), `result` (`"swap"`/`"keep"`), `sortedFrom` (indeks awal zona final), `note`, `tone` (`swap`/`keep`/`done`/`alert`), `code` (versi kode), `line` (id baris yang disorot), `vars`, `revised` (id yang disorot ungu), serta `view: "growth"` atau `view: "summary"` untuk tampilan grafik/ringkasan.
 
+## Renderer "oop"
+
+Dipakai untuk pelajaran class dan objek. Tata letak memakai koordinat `(u, v)`: `u` ke kanan di layar, `v` ke depan (bawah). Isi frame:
+
+| Field | Isi |
+|---|---|
+| `classes` | `[{ id, title, u, v, theme, parent, members: [{ id, label, kind: "attr" \| "method" }] }]`, dengan `parent` menggambar panah "mewarisi" |
+| `objects` | `[{ id, title, u, v, theme, attrs: [[nama, nilai], ...] }]` |
+| `vars` | `[{ id, u, v, to }]`: tag variabel di lantai dengan panah ke objek (`to` = id objek atau anchor) |
+| `links` | `[{ from, to, label }]`: panah antar-anchor, misalnya atribut → objek lain |
+| `flow` | `{ path: [anchor, ...], kind: "go" \| "err" }`: jalur pemanggilan dengan paket berjalan |
+| `marks` | `{ anchor: "hl" \| "chg" \| "err" \| "ok" \| "new" \| "miss" \| "over" \| "ghost" }` |
+| `out` | Baris konsol output; awali dengan `!` untuk baris error |
+| `crowd` | `{ n, show, cols, u, v, label }`: banyak objek kecil (kasus skala) |
+
+Anchor: `v:my_dog`, `o:o1`, `o:o1.a:name`, `c:Dog`, `c:Dog.m:sit`, `crowd`.
+
+Frame disusun dengan `OOPStory(keadaanAwal, metricsOf)`: ubah `S.s`, lalu panggil `S.snap({ line, note, flow, marks })`, dan `S.take()` untuk mengambil frame satu langkah. Metrik dihitung otomatis dari keadaan, dan semua output konsol harus dicocokkan dengan menjalankan programnya di Python.
+
 ## Toolkit isometrik (`shared/iso.js`)
 
 Semua panggung digambar sebagai diagram isometrik 3D. Toolkit ini bisa dipakai untuk renderer apa pun:
