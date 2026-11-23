@@ -55,7 +55,8 @@ code { font-family: var(--mono); font-size: .86em; background: var(--accent-soft
 ::selection { background: #ddd6fe; }
 
 /* ---------- Kerangka aplikasi ---------- */
-.app { display: grid; grid-template-columns: 284px minmax(0, 1fr); min-height: 100vh; }
+.app { display: grid; grid-template-columns: 284px minmax(0, 1fr); min-height: 100vh; transition: grid-template-columns .32s var(--ease); }
+.app.side-collapsed { grid-template-columns: 76px minmax(0, 1fr); }
 .topbar {
   display: none; position: sticky; top: 0; z-index: 30;
   align-items: center; gap: 10px; padding: 10px 14px;
@@ -72,7 +73,48 @@ code { font-family: var(--mono); font-size: .86em; background: var(--accent-soft
   background: rgba(255, 255, 255, .78); backdrop-filter: blur(14px);
   border-right: 1px solid var(--line); padding: 20px 14px 28px;
 }
-.brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ink); padding: 2px 6px 16px; }
+.side-top { display: flex; align-items: flex-start; gap: 6px; }
+.brand { display: flex; align-items: center; gap: 11px; text-decoration: none; color: var(--ink); padding: 2px 6px 16px; flex: 1; min-width: 0; }
+.side-toggle {
+  flex: none; width: 30px; height: 30px; margin-top: 6px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  display: grid; place-items: center; cursor: pointer; color: var(--muted); font-size: 18px; line-height: 1;
+  transition: background .2s, color .2s, transform .3s var(--ease);
+}
+.side-toggle:hover { background: var(--accent-soft); color: var(--accent); }
+.side-toggle .chev-l { display: block; transform: translateY(-1px); transition: transform .3s var(--ease); }
+.side-rail { display: none; flex-direction: column; align-items: center; gap: 8px; padding-top: 6px; }
+.rail-btn {
+  position: relative; width: 44px; height: 44px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface);
+  display: grid; place-items: center; cursor: pointer; text-decoration: none; color: var(--muted);
+  font-family: var(--sans); font-weight: 800; font-size: 13px; transition: transform .2s var(--ease), background .2s, color .2s, box-shadow .2s;
+}
+.rail-btn:hover { transform: translateY(-2px); color: var(--accent); border-color: #c7c4f3; }
+.rail-btn.has-ready { color: var(--ink); }
+.rail-btn.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: 0 10px 20px -12px rgba(99, 102, 241, .9); }
+.rail-btn i { position: absolute; left: 7px; right: 7px; bottom: 5px; height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.rail-btn i::after { content: ""; position: absolute; inset: 0; width: calc(var(--p, 0) * 100%); background: #10b981; }
+.rail-btn.active i { background: rgba(255, 255, 255, .3); }
+
+/* Sidebar diciutkan menjadi lajur */
+.app.side-collapsed .sidebar { padding: 18px 10px 24px; overflow-x: hidden; }
+.app.side-collapsed .side-full, .app.side-collapsed .brand-text { display: none; }
+.app.side-collapsed .side-top { flex-direction: column; align-items: center; gap: 8px; margin-bottom: 8px; }
+.app.side-collapsed .brand { padding: 0; flex: none; }
+.app.side-collapsed .side-toggle { margin-top: 0; }
+.app.side-collapsed .side-toggle .chev-l { transform: rotate(180deg) translateY(1px); }
+.app.side-collapsed .side-rail { display: flex; }
+
+/* Mode presentasi: sidebar hilang, panggung membesar */
+.app.present { grid-template-columns: minmax(0, 1fr); }
+.app.present .sidebar, .app.present .topbar { display: none; }
+.app.present .main { padding: 18px 22px 30px; }
+.app.present .lesson { max-width: none; grid-template-columns: minmax(0, 1fr) 400px; }
+.app.present .subtitle, .app.present .tags { display: none; }
+.app.present .lesson h1 { font-size: clamp(22px, 2.4vw, 30px); margin-bottom: 12px; }
+.app.present .iso-svg { height: min(62vh, 640px); }
+.app.present .panel h2 { font-size: 24px; }
+.app.present .panel p { font-size: 16px; }
+.present-btn[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
 .brand-mark {
   width: 40px; height: 40px; border-radius: 13px; background: var(--grad); color: #fff; flex: none;
   display: grid; place-items: center; font-weight: 800; font-size: 14px; letter-spacing: -.3px;
@@ -284,7 +326,11 @@ code { font-family: var(--mono); font-size: .86em; background: var(--accent-soft
   .panel { position: static; }
 }
 @media (max-width: 900px) {
-  .app { grid-template-columns: minmax(0, 1fr); }
+  .app, .app.side-collapsed, .app.present { grid-template-columns: minmax(0, 1fr); }
+  .app.side-collapsed .side-full, .app.side-collapsed .brand-text { display: block; }
+  .app.side-collapsed .side-rail, .side-toggle, .present-btn { display: none !important; }
+  .app.side-collapsed .side-top { flex-direction: row; align-items: flex-start; }
+  .app.side-collapsed .brand { padding: 2px 6px 16px; flex: 1; }
   .topbar { display: flex; }
   .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 300px; z-index: 50; transform: translateX(-100%); transition: transform .3s var(--ease); box-shadow: var(--shadow-lg); background: #fff; }
   .app.menu-open .sidebar { transform: none; }

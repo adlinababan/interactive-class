@@ -43,6 +43,8 @@ algoritma-pemrograman/
 - Strip metrik yang menghitung naik/turun di setiap langkah
 - Daftar "Yang akan kamu pelajari" tercentang seiring langkah
 - Stepper bernomor; papan ketik `←` `→` langkah, `R` ulangi, `Spasi` jeda
+- Sidebar bisa diciutkan menjadi lajur nomor modul (`[` atau tombol ‹), dan pilihannya diingat
+- Mode presentasi untuk proyektor (`P`): layar penuh, sidebar disembunyikan, panggung diperbesar (`Esc` untuk keluar)
 - Alamat per langkah, mis. `#/bubble-sort/7`, untuk dibagikan di kelas
 - Progres per modul disimpan di browser mahasiswa
 - Menghormati pengaturan *reduced motion*; nyaman di proyektor dan ponsel

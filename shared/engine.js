@@ -66,10 +66,48 @@
     this.done = store.get(this.progressKey, {});
     this.root = document.getElementById("app");
     this.player = null;
+    this.sideKey = "kelas:sidebar-ciut";
     this.buildShell();
+    this.setCollapsed(store.get(this.sideKey, false), true);
     window.addEventListener("hashchange", () => this.route());
+    document.addEventListener("keydown", (e) => this.onKey(e));
+    document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && this.presenting) this.setPresent(false); });
     this.route();
   }
+
+  // ---------- sidebar ciut & mode presentasi ----------
+  App.prototype.setCollapsed = function (v, silent) {
+    this.collapsed = !!v;
+    this.root.classList.toggle("side-collapsed", this.collapsed);
+    if (!silent) store.set(this.sideKey, this.collapsed);
+    if (this.toggleBtn) {
+      this.toggleBtn.setAttribute("aria-expanded", String(!this.collapsed));
+      this.toggleBtn.setAttribute("aria-label", this.collapsed ? "Bentangkan sidebar" : "Ciutkan sidebar");
+      this.toggleBtn.title = (this.collapsed ? "Bentangkan" : "Ciutkan") + " sidebar  [";
+    }
+  };
+
+  App.prototype.setPresent = function (v) {
+    this.presenting = !!v;
+    this.root.classList.toggle("present", this.presenting);
+    const el = document.documentElement;
+    try {
+      if (this.presenting && !document.fullscreenElement && el.requestFullscreen) el.requestFullscreen().catch(() => {});
+      if (!this.presenting && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+    } catch (e) { /* layar penuh tidak tersedia; mode presentasi tetap jalan */ }
+    if (this.player && this.player.presentBtn) {
+      this.player.presentBtn.textContent = this.presenting ? "✕ Keluar" : "⛶ Presentasi";
+      this.player.presentBtn.setAttribute("aria-pressed", String(this.presenting));
+    }
+  };
+
+  App.prototype.onKey = function (e) {
+    const tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "[") { e.preventDefault(); this.setCollapsed(!this.collapsed); }
+    else if ((e.key === "p" || e.key === "P") && this.player) { e.preventDefault(); this.setPresent(!this.presenting); }
+    else if (e.key === "Escape" && this.presenting) { this.setPresent(false); }
+  };
 
   App.prototype.buildShell = function () {
     const c = this.course;
@@ -82,6 +120,7 @@
     this.root.className = "app";
     this.root.append(this.side, h("div", null, top, this.main), scrim);
     this.renderSide();
+    if (this.collapsed != null) this.setCollapsed(this.collapsed, true);
   };
 
   App.prototype.renderSide = function (activeSlug) {
@@ -90,16 +129,38 @@
     const total = this.flat.length;
     const doneCount = this.flat.filter((l) => this.done[l.slug]).length;
     this.side.innerHTML = "";
+    this.toggleBtn = h("button", { class: "side-toggle", onclick: () => this.setCollapsed(!this.collapsed) },
+      h("span", { class: "chev-l", "aria-hidden": "true" }, "‹"));
+    const full = h("div", { class: "side-full" });
+    // lajur tipis saat sidebar diciutkan: satu tombol per modul
+    const rail = h("div", { class: "side-rail", role: "list" },
+      h("a", { class: "rail-btn" + (activeSlug ? "" : " active"), href: "#/", title: "Ikhtisar kursus", role: "listitem" }, "◎"),
+      c.modules.map((m) => {
+        const dn = m.lessons.filter((l) => this.done[l.slug]).length;
+        const ready = m.lessons.some((l) => l.ready);
+        return h("button", {
+          class: "rail-btn" + (m === openMod ? " active" : "") + (ready ? " has-ready" : ""), role: "listitem",
+          title: m.id + ". " + m.title + " (" + dn + "/" + m.lessons.length + ")",
+          "aria-label": "Modul " + m.id + ": " + m.title,
+          onclick: () => { this.setCollapsed(false); const w = this.side.querySelector('[data-mod="' + m.id + '"]'); if (w) { w.classList.add("open"); w.scrollIntoView({ block: "nearest" }); } }
+        }, m.id, h("i", { style: "--p:" + (dn / m.lessons.length) }));
+      }));
     this.side.append(
-      h("a", { class: "brand", href: "#/" },
-        h("span", { class: "brand-mark" }, "AP"),
-        h("span", null, h("b", null, c.titleId), h("small", null, c.code + " · " + c.program))),
+      h("div", { class: "side-top" },
+        h("a", { class: "brand", href: "#/" },
+          h("span", { class: "brand-mark" }, "AP"),
+          h("span", { class: "brand-text" }, h("b", null, c.titleId), h("small", null, c.code + " · " + c.program))),
+        this.toggleBtn),
+      full, rail
+    );
+    if (this.collapsed != null) this.setCollapsed(this.collapsed, true);
+    full.append(
       h("a", { class: "side-link" + (activeSlug ? "" : " active"), href: "#/" }, "Ikhtisar kursus"),
       h("div", { class: "side-head" }, h("span", null, "Modul"), h("span", null, total + " pelajaran"))
     );
     c.modules.forEach((m) => {
       const dn = m.lessons.filter((l) => this.done[l.slug]).length;
-      const wrap = h("div", { class: "mod" + (m === openMod ? " open" : "") });
+      const wrap = h("div", { class: "mod" + (m === openMod ? " open" : ""), "data-mod": m.id });
       const btn = h("button", { class: "mod-btn", "aria-expanded": String(m === openMod), onclick: () => {
         wrap.classList.toggle("open");
         btn.setAttribute("aria-expanded", String(wrap.classList.contains("open")));
@@ -112,9 +173,9 @@
           : h("span", { title: "Segera hadir" }, dot, l.title, h("em", { class: "soon" }, "segera"))));
       });
       wrap.append(btn, ul);
-      this.side.append(wrap);
+      full.append(wrap);
     });
-    this.side.append(h("div", { class: "progress-box" },
+    full.append(h("div", { class: "progress-box" },
       "Progres: " + doneCount + " dari " + total + " pelajaran",
       h("div", { class: "bar" }, h("i", { style: "width:" + (100 * doneCount / total) + "%" }))));
   };
@@ -140,6 +201,7 @@
   };
 
   App.prototype.leave = function () {
+    if (this.presenting) this.setPresent(false);
     if (this.player) { this.player.destroy(); this.player = null; }
   };
 
@@ -231,7 +293,8 @@
     const tools = h("div", { class: "stage-tools" },
       h("div", { class: "legend" }, (L.legend || []).map((g) => h("span", null, h("i", { style: "background:" + g.color + (g.border ? ";border:1.5px solid " + g.border : "") + (g.round ? ";border-radius:50%" : "") }), g.label))),
       h("button", { class: "btn", onclick: () => this.replay(), "aria-label": "Ulangi animasi langkah ini" }, "↺ Ulangi"),
-      this.playBtn);
+      this.playBtn,
+      this.presentBtn = h("button", { class: "btn present-btn", onclick: () => this.app.setPresent(!this.app.presenting), "aria-pressed": String(!!this.app.presenting), title: "Mode presentasi  P" }, this.app.presenting ? "✕ Keluar" : "⛶ Presentasi"));
     this.stage = h("div", { class: "stage" });
     this.stepper = h("div", { class: "stepper", role: "tablist", "aria-label": "Langkah pelajaran" },
       L.steps.map((s, i) => h("button", { role: "tab", onclick: () => this.go(i), title: s.title }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "lbl" }, s.short))));
@@ -398,7 +461,7 @@
         k < n - 1
           ? h("button", { class: "btn primary", onclick: () => this.go(k + 1) }, "Berikutnya: " + L.steps[k + 1].short + " →")
           : this.nextLink()),
-      h("div", { class: "hint", html: "<kbd>←</kbd> <kbd>→</kbd> langkah · <kbd>R</kbd> ulangi · <kbd>Spasi</kbd> jeda" })
+      h("div", { class: "hint", html: "<kbd>←</kbd> <kbd>→</kbd> langkah · <kbd>R</kbd> ulangi · <kbd>Spasi</kbd> jeda<br><kbd>[</kbd> sidebar · <kbd>P</kbd> presentasi" })
     ));
     this.extra.innerHTML = "";
     if (k === n - 1 && L.next) {
