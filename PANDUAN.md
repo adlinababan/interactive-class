@@ -98,7 +98,7 @@ Frame disusun dengan `NetStory(keadaanAwal)`: ubah `S.s` atau pakai `S.set(id, p
 
 ### Ulang otomatis
 
-Tombol **🔁 Otomatis** (pintasan **L**) memutar animasi langkah yang sedang dibuka berulang-ulang: animasi selesai, diam di keadaan akhir sekitar 2,8 detik (garis di bawah tombol menunjukkan hitung mundur), lalu diputar lagi. Efek suara hanya berbunyi pada putaran pertama. **Spasi** saat menunggu menahan di keadaan akhir, Spasi lagi melanjutkan. Langkah RANGKUMAN tidak diulang. Pilihan disimpan di `localStorage` (`kelas:ulang`).
+Tombol **🔁 Otomatis** (pintasan **L**) memutar animasi langkah yang sedang dibuka berulang-ulang: animasi selesai, diam di keadaan akhir sekitar 2,8 detik (garis di bawah tombol menunjukkan hitung mundur), lalu diputar lagi. Efek suara ikut berbunyi di setiap putaran (bisa dimatikan dengan tombol Suara / **M**). **Spasi** saat menunggu menahan di keadaan akhir, Spasi lagi melanjutkan. Langkah RANGKUMAN tidak diulang. Pilihan disimpan di `localStorage` (`kelas:ulang`).
 
 ### Animasi dan pengaturan "kurangi gerakan"
 

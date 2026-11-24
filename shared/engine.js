@@ -374,8 +374,6 @@
   Player.prototype.play = function (fromLoop) {
     clearTimeout(this.timer);
     this.endLoopWait();
-    // pada putaran otomatis berikutnya suara dibisukan agar tidak mengganggu penjelasan
-    if (window.Sfx) Sfx.hush = !!fromLoop;
     const st = this.lesson.steps[this.k];
     this.paused = false;
     this.fi = -1;
