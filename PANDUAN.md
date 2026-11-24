@@ -96,6 +96,10 @@ Dipakai untuk arsitektur sistem, jaringan, dan analisis keputusan (biaya, skor).
 
 Frame disusun dengan `NetStory(keadaanAwal)`: ubah `S.s` atau pakai `S.set(id, props)`, `S.drop(...)`, lalu `S.snap({ note, flows, card, metrics })` dan `S.take()`. Semua angka (antrean, TCO, payback, ROI, NPV, skor berbobot) dihitung dari rumus di file pelajaran, bukan diketik tangan.
 
+### Ulang otomatis
+
+Tombol **🔁 Otomatis** (pintasan **L**) memutar animasi langkah yang sedang dibuka berulang-ulang: animasi selesai, diam di keadaan akhir sekitar 2,8 detik (garis di bawah tombol menunjukkan hitung mundur), lalu diputar lagi. Efek suara hanya berbunyi pada putaran pertama. **Spasi** saat menunggu menahan di keadaan akhir, Spasi lagi melanjutkan. Langkah RANGKUMAN tidak diulang. Pilihan disimpan di `localStorage` (`kelas:ulang`).
+
 ### Animasi dan pengaturan "kurangi gerakan"
 
 Secara bawaan, animasi mengikuti pengaturan perangkat (*prefers-reduced-motion*). Banyak laptop Windows mematikan "Animation effects", sehingga pelajaran langsung melompat ke hasil akhir tanpa animasi. Pada perangkat seperti itu muncul tombol **✨ Nyalakan animasi** di atas panggung. Pilihannya disimpan di `localStorage` (`kelas:animasi` = `on`/`off`) dan dibaca lewat `KelasMotion.reduce` serta `Iso.reduceMotion`.

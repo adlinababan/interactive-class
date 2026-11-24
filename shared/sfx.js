@@ -76,13 +76,14 @@
 
   window.Sfx = {
     get enabled() { return enabled; },
+    hush: false,   // true = bisukan sementara (mis. putaran ulang otomatis)
     setEnabled(v) {
       enabled = !!v;
       try { localStorage.setItem(KEY, enabled ? "1" : "0"); } catch (e) {}
       if (enabled) { unlock(); this.play("tick", { pitch: 0.6 }); }
     },
     play(name, o) {
-      if (!enabled || !ctx || ctx.state !== "running" || !SOUNDS[name]) return;
+      if (!enabled || this.hush || !ctx || ctx.state !== "running" || !SOUNDS[name]) return;
       o = o || {};
       let t = ctx.currentTime + (o.delay || 0) + 0.005;
       const gap = GAP[name] || 0.08;

@@ -307,10 +307,12 @@
       (this.motionBtn = h("button", { class: "btn motion-btn", onclick: () => this.toggleMotion(), title: "Nyalakan/matikan animasi" })),
       window.Sfx ? (this.soundBtn = h("button", { class: "btn sound-btn", onclick: () => this.toggleSound(), title: "Efek suara  M" })) : null,
       h("button", { class: "btn", onclick: () => this.replay(), "aria-label": "Ulangi animasi langkah ini" }, "↺ Ulangi"),
+      (this.loopBtn = h("button", { class: "btn loop-btn", onclick: () => this.toggleLoop() })),
       this.playBtn,
       this.presentBtn = h("button", { class: "btn present-btn", onclick: () => this.app.setPresent(!this.app.presenting), "aria-pressed": String(!!this.app.presenting), title: "Mode presentasi  P" }, this.app.presenting ? "✕ Keluar" : "⛶ Presentasi"));
     this.syncSound();
     this.syncMotion();
+    this.syncLoop();
     this.stage = h("div", { class: "stage" });
     this.stepper = h("div", { class: "stepper", role: "tablist", "aria-label": "Langkah pelajaran" },
       L.steps.map((s, i) => h("button", { role: "tab", onclick: () => this.go(i), title: s.title }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "lbl" }, s.short))));
@@ -369,8 +371,11 @@
     return k > 0 ? last(this.lesson.steps[k - 1].frames) : this.lesson.initial;
   };
 
-  Player.prototype.play = function () {
+  Player.prototype.play = function (fromLoop) {
     clearTimeout(this.timer);
+    this.endLoopWait();
+    // pada putaran otomatis berikutnya suara dibisukan agar tidak mengganggu penjelasan
+    if (window.Sfx) Sfx.hush = !!fromLoop;
     const st = this.lesson.steps[this.k];
     this.paused = false;
     this.fi = -1;
@@ -384,22 +389,61 @@
     const st = this.lesson.steps[this.k];
     this.fi++;
     const fr = st.frames[this.fi];
-    if (!fr) return this.setPlayBtn("done");
+    if (!fr) return this.finish();
     this.show(fr, false);
     if (this.fi < st.frames.length - 1) {
       const d = (fr.dur || 900) * (st.tempo || 1);
       this.timer = setTimeout(() => this.tick(), d);
-    } else this.setPlayBtn("done");
+    } else this.finish();
+  };
+
+  Player.prototype.finish = function () { this.setPlayBtn("done"); this.scheduleLoop(); };
+
+  // ---------- ulang otomatis ----------
+  const LOOP_KEY = "kelas:ulang", LOOP_HOLD = 2800;   // jeda (ms) di keadaan akhir sebelum diputar ulang
+  Player.prototype.loopOn = function () { try { return localStorage.getItem(LOOP_KEY) === "1"; } catch (e) { return !!this._loop; } };
+  Player.prototype.syncLoop = function () {
+    const b = this.loopBtn; if (!b) return;
+    const on = this.loopOn();
+    b.textContent = "🔁 Otomatis";
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", String(on));
+    b.title = (on ? "Ulang otomatis menyala: animasi diputar berulang. " : "Putar animasi berulang terus selama menjelaskan. ") + "Pintasan L";
+  };
+  Player.prototype.toggleLoop = function () {
+    const on = !this.loopOn();
+    this._loop = on;
+    try { localStorage.setItem(LOOP_KEY, on ? "1" : "0"); } catch (e) {}
+    this.syncLoop();
+    const st = this.lesson.steps[this.k];
+    if (!on) { if (this.looping) { clearTimeout(this.timer); this.endLoopWait(); } }
+    else if (!this.paused && this.fi >= st.frames.length - 1) this.scheduleLoop();
+  };
+  Player.prototype.scheduleLoop = function () {
+    const st = this.lesson.steps[this.k];
+    if (!this.loopOn() || Motion.reduce || st.kind === "RANGKUMAN") return;
+    const b = this.loopBtn;
+    this.looping = true;
+    b.style.setProperty("--hold", LOOP_HOLD + "ms");
+    b.classList.remove("waiting"); void b.offsetWidth; b.classList.add("waiting");
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.play(true), LOOP_HOLD);
+  };
+  Player.prototype.endLoopWait = function () {
+    this.looping = false;
+    if (this.loopBtn) this.loopBtn.classList.remove("waiting");
   };
 
   Player.prototype.togglePause = function () {
     const st = this.lesson.steps[this.k];
+    // sedang menunggu putaran berikutnya: Spasi/Jeda menahan di keadaan akhir
+    if (this.looping) { clearTimeout(this.timer); this.endLoopWait(); this.paused = true; this.setPlayBtn("paused"); return; }
     if (this.fi >= st.frames.length - 1 && !this.paused) return this.replay();
     if (this.paused) { this.paused = false; this.setPlayBtn("playing"); this.tick(); }
     else { clearTimeout(this.timer); this.paused = true; this.setPlayBtn("paused"); }
   };
 
-  Player.prototype.replay = function () { this.play(); };
+  Player.prototype.replay = function () { this.play(false); };
 
   Player.prototype.setPlayBtn = function (state) {
     const b = this.playBtn;
@@ -498,7 +542,7 @@
         k < n - 1
           ? h("button", { class: "btn primary", onclick: () => this.go(k + 1) }, "Berikutnya: " + L.steps[k + 1].short + " →")
           : this.nextLink()),
-      h("div", { class: "hint", html: "<kbd>←</kbd> <kbd>→</kbd> langkah · <kbd>R</kbd> ulangi · <kbd>Spasi</kbd> jeda<br><kbd>[</kbd> sidebar · <kbd>P</kbd> presentasi" + (window.Sfx ? " · <kbd>M</kbd> suara" : "") })
+      h("div", { class: "hint", html: "<kbd>←</kbd> <kbd>→</kbd> langkah · <kbd>R</kbd> ulangi · <kbd>Spasi</kbd> jeda<br><kbd>[</kbd> sidebar · <kbd>P</kbd> presentasi · <kbd>L</kbd> ulang otomatis" + (window.Sfx ? " · <kbd>M</kbd> suara" : "") })
     ));
     this.extra.innerHTML = "";
     if (k === n - 1 && L.next) {
@@ -534,6 +578,7 @@
     else if (e.key === "ArrowLeft") { e.preventDefault(); this.go(this.k - 1); }
     else if (e.key === "r" || e.key === "R") { this.replay(); }
     else if ((e.key === "m" || e.key === "M") && window.Sfx) { this.toggleSound(); }
+    else if (e.key === "l" || e.key === "L") { this.toggleLoop(); }
     else if (e.key === " " && tag !== "button" && tag !== "a") { e.preventDefault(); this.togglePause(); }
   };
 

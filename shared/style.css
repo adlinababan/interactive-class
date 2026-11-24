@@ -354,3 +354,7 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .motion-btn.attn { background: var(--grad); border-color: transparent; color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.35); }
 
 .sound-btn.off { color: var(--muted); }
+.loop-btn { position: relative; overflow: hidden; }
+.loop-btn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+.loop-btn.waiting::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--grad); transform-origin: left; animation: loop-fill var(--hold, 2800ms) linear forwards; }
+@keyframes loop-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
