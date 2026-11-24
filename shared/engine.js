@@ -294,9 +294,11 @@
     this.playBtn = h("button", { class: "btn", onclick: () => this.togglePause(), "aria-label": "Jeda animasi" }, "❚❚ Jeda");
     const tools = h("div", { class: "stage-tools" },
       h("div", { class: "legend" }, (L.legend || []).map((g) => h("span", null, h("i", { style: "background:" + g.color + (g.border ? ";border:1.5px solid " + g.border : "") + (g.round ? ";border-radius:50%" : "") }), g.label))),
+      window.Sfx ? (this.soundBtn = h("button", { class: "btn sound-btn", onclick: () => this.toggleSound(), title: "Efek suara  M" })) : null,
       h("button", { class: "btn", onclick: () => this.replay(), "aria-label": "Ulangi animasi langkah ini" }, "↺ Ulangi"),
       this.playBtn,
       this.presentBtn = h("button", { class: "btn present-btn", onclick: () => this.app.setPresent(!this.app.presenting), "aria-pressed": String(!!this.app.presenting), title: "Mode presentasi  P" }, this.app.presenting ? "✕ Keluar" : "⛶ Presentasi"));
+    this.syncSound();
     this.stage = h("div", { class: "stage" });
     this.stepper = h("div", { class: "stepper", role: "tablist", "aria-label": "Langkah pelajaran" },
       L.steps.map((s, i) => h("button", { role: "tab", onclick: () => this.go(i), title: s.title }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "lbl" }, s.short))));
@@ -394,6 +396,16 @@
     else { b.textContent = "▶ Putar"; b.setAttribute("aria-label", "Putar ulang animasi"); }
   };
 
+  Player.prototype.syncSound = function () {
+    if (!this.soundBtn) return;
+    const on = window.Sfx.enabled;
+    this.soundBtn.textContent = on ? "🔊 Suara" : "🔇 Bisu";
+    this.soundBtn.setAttribute("aria-pressed", String(on));
+    this.soundBtn.setAttribute("aria-label", on ? "Matikan efek suara" : "Nyalakan efek suara");
+    this.soundBtn.classList.toggle("off", !on);
+  };
+  Player.prototype.toggleSound = function () { window.Sfx.setEnabled(!window.Sfx.enabled); this.syncSound(); };
+
   Player.prototype.show = function (frame, instant) {
     this.renderer.render(frame, { instant, lesson: this.lesson });
     this.updateMetrics(frame.metrics || {}, frame.approx || {}, instant);
@@ -463,7 +475,7 @@
         k < n - 1
           ? h("button", { class: "btn primary", onclick: () => this.go(k + 1) }, "Berikutnya: " + L.steps[k + 1].short + " →")
           : this.nextLink()),
-      h("div", { class: "hint", html: "<kbd>←</kbd> <kbd>→</kbd> langkah · <kbd>R</kbd> ulangi · <kbd>Spasi</kbd> jeda<br><kbd>[</kbd> sidebar · <kbd>P</kbd> presentasi" })
+      h("div", { class: "hint", html: "<kbd>←</kbd> <kbd>→</kbd> langkah · <kbd>R</kbd> ulangi · <kbd>Spasi</kbd> jeda<br><kbd>[</kbd> sidebar · <kbd>P</kbd> presentasi" + (window.Sfx ? " · <kbd>M</kbd> suara" : "") })
     ));
     this.extra.innerHTML = "";
     if (k === n - 1 && L.next) {
@@ -498,6 +510,7 @@
     if (e.key === "ArrowRight") { e.preventDefault(); this.go(this.k + 1); }
     else if (e.key === "ArrowLeft") { e.preventDefault(); this.go(this.k - 1); }
     else if (e.key === "r" || e.key === "R") { this.replay(); }
+    else if ((e.key === "m" || e.key === "M") && window.Sfx) { this.toggleSound(); }
     else if (e.key === " " && tag !== "button" && tag !== "a") { e.preventDefault(); this.togglePause(); }
   };
 

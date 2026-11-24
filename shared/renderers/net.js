@@ -39,12 +39,33 @@
     cam.push([x + k, y - k, z + 0.6], [x - k, y + k, z + 0.6], [x - k, y + k, z - 0.1]);
   }
 
+  // ---------- suara ----------
+  let sfxQ = null;
+  const sfx = (name, o) => { if (sfxQ) sfxQ.push([name, o || {}]); };
+  function flushSfx() {
+    const q = sfxQ; sfxQ = null;
+    if (!q || !q.length || !window.Sfx) return;
+    const has = (n) => q.some((e) => e[0] === n);
+    let drops = 0;
+    q.forEach(([n, o]) => {
+      if (n === "done" && (has("ok") || has("sparkle"))) return;   // jangan menumpuk dua bunyi "berhasil"
+      if (n === "drop" && ++drops > 10) return;                    // banyak benda sekaligus: cukup 10 bunyi
+      Sfx.play(n, o);
+    });
+  }
+
   Kelas.registerRenderer("net", {
     mount(stage, lesson) {
       const root = h("div", { class: "sv net" });
       const wrap = h("div", { class: "sv-scene" });
       const live = h("div", { class: "sr-only", "aria-live": "polite" });
       const card = h("div", { class: "net-card-wrap", hidden: true });
+      card.addEventListener("input", (ev) => {
+        const t = ev.target;
+        if (!window.Sfx || !t || t.type !== "range") return;
+        const lo = +t.min || 0, hi = +t.max || 100;
+        Sfx.play("tick", { pitch: hi > lo ? (+t.value - lo) / (hi - lo) : 0.5 });
+      });
       wrap.append(live, card);
       const sc = Iso.scene(wrap, { label: "Diagram arsitektur sistem" });
       wrap.insertBefore(sc.svg, card);
@@ -58,13 +79,16 @@
     render(f, opts) {
       if (!st) return;
       const instant = !!opts.instant, seen = new Set(), cam = [];
+      sfxQ = instant ? null : [];
       st.anchors = {};
       (f.zones || []).forEach((z) => renderZone(z, instant, seen, cam));
       (f.nodes || []).forEach((n) => renderNode(n, instant, seen, cam));
       (f.edges || []).forEach((e) => renderEdge(e, instant, seen));
       for (const [id, e] of st.els) if (!seen.has(id)) { st.els.delete(id); removeEl(e, instant); }
-      renderFlows(f.flows || []);
+      renderFlows(f.flows || [], instant);
       renderNote(f, cam);
+      if ((f.note || "") !== (st.prevNote || "") && f.note) { if (f.tone === "alert") sfx("alert", { delay: 0.15 }); else if (f.tone === "done") sfx("done", { delay: 0.35 }); }
+      st.prevNote = f.note || "";
       renderCard(f.card, instant);
       if (f.card && f.card.at === "right" && cam.length) {
         // geser bingkai agar diagram berada di kiri dan kartu tidak menutupinya
@@ -75,6 +99,7 @@
       fitCamera(cam, instant);
       st.sc.svg.classList.toggle("dim", !!(f.card && f.card.at !== "right"));
       st.live.textContent = f.note || "";
+      flushSfx();
     },
 
     unmount() { if (st && st.labCleanup) st.labCleanup(); st = null; }
@@ -203,6 +228,7 @@
       };
       if (instant || Iso.reduceMotion || (Math.abs(fromN - toN) < 1e-6 && Math.abs(fromZ - toZ) < 1e-6)) set(toN, toZ);
       else e.cancel = Iso.tween(900, (t) => set(fromN + (toN - fromN) * t, fromZ + (toZ - fromZ) * t));
+      if (Math.abs(fromN - toN) > 0.05) sfx(toN < fromN && toN < 0 ? "fall" : "rise", { pitch: Math.min(1, Math.abs(toN) / 6) });
     } else if (moving) {
       const from = { ...e.cur };
       e.cancel = Iso.tween(1100, (t) => placeGeo(from.u + (target.u - from.u) * t, from.v + (target.v - from.v) * t));
@@ -232,7 +258,13 @@
     camPill(cam, x, y, zl, n.label || n.id);
     if (n.sub) camPill(cam, x, y, zl + 0.64, n.sub);
     if (n.range) { const r = n.range; cam.push([x - r, y - r, 0], [x + r, y + r, 0], [x + r, y - r, 0], [x - r, y + r, 0]); }
-    if (e.fresh && !instant && n.sparkle) setTimeout(() => st && Iso.sparkle(st.sc.layers.fx, x, y, e.geo.top + 0.2, "#6366f1"), 650);
+    if (n.sparkle && !e.prevSparkle && !instant) {
+      setTimeout(() => st && Iso.sparkle(st.sc.layers.fx, x, y, (n.kind === "bar" ? (n.z0 || 0) + Math.max(n.n || 0, 0) : e.geo.top) + 0.2, "#6366f1"), e.fresh ? 650 : 900);
+      sfx("sparkle", { delay: e.fresh ? 0.65 : 0.9 });
+    }
+    if (e.fresh && n.kind !== "bar") sfx("drop", { pitch: n.kind === "token" ? 1.5 : n.kind === "phone" || n.kind === "laptop" ? 1.2 : n.kind === "mainframe" || n.kind === "db" ? 0.75 : 1 });
+    if (!e.fresh && n.state !== e.prevState) { if (n.state === "err") sfx("err"); else if (n.state === "ok") sfx("ok"); }
+    e.prevState = n.state; e.prevSparkle = !!n.sparkle;
   }
 
   // ---------- kabel ----------
@@ -256,16 +288,20 @@
     e.c.g.style.opacity = ed.state === "off" ? 0.25 : 1;
     const mx = (from[0] + to[0]) / 2, my = (from[1] + to[1]) / 2, mz = (from[2] + to[2]) / 2 + arc * 0.5;
     if (ed.state === "cut") e.cut.at(mx, my, mz).show(true); else e.cut.show(false);
+    if (e.fresh && ed.state !== "off") sfx("link", { delay: 0.25 });
+    if (ed.state === "cut" && e.prevState !== "cut" && !e.fresh) sfx("cut");
+    e.prevState = ed.state;
     if (ed.label) e.lab.text(ed.label).at(mx, my, mz + (ed.state === "cut" ? 0.65 : 0.1)).show(true); else e.lab.show(false);
   }
 
   // ---------- paket ----------
-  function renderFlows(flows) {
+  function renderFlows(flows, instant) {
     const key = JSON.stringify(flows) + JSON.stringify(flows.map((f) => f.path.map((p) => st.anchors[p] && st.anchors[p].port)));
     if (key === st.flowKey) return;
     st.flowKey = key;
     st.flowEls.forEach((g) => g.remove());
     st.flowEls = [];
+    if (!instant) flows.slice(0, 4).forEach((fl) => sfx(fl.kind || "req", { delay: Math.min(fl.delay || 0, 1.5) + 0.05, pitch: fl.kind === "err" ? 1 : 0.9 + Math.random() * 0.2 }));
     flows.forEach((fl) => {
       const pts = fl.path.map((id) => st.anchors[id]).filter(Boolean).map((a) => Iso.P(...(fl.arc ? a.top : a.port)));
       if (pts.length < 2) return;
@@ -327,6 +363,7 @@
     if (same && card.type === "chart") { NetChart(wrap.querySelector(".net-chart"), card); updateCardText(wrap, card); return; }
     if (same && card.lab) { updateCardText(wrap, card); if (st.labUpdate) st.labUpdate(card); return; }
     wrap.innerHTML = "";
+    if (!instant) sfx("card", { delay: 0.1 });
     const box = h("div", { class: "sv-card net-card" + (instant ? "" : " anim") },
       card.title ? h("h3", null, card.title) : null,
       card.sub ? h("p", { class: "sub", html: rich(card.sub) }) : null);

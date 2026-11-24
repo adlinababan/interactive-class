@@ -96,6 +96,23 @@ Dipakai untuk arsitektur sistem, jaringan, dan analisis keputusan (biaya, skor).
 
 Frame disusun dengan `NetStory(keadaanAwal)`: ubah `S.s` atau pakai `S.set(id, props)`, `S.drop(...)`, lalu `S.snap({ note, flows, card, metrics })` dan `S.take()`. Semua angka (antrean, TCO, payback, ROI, NPV, skor berbobot) dihitung dari rumus di file pelajaran, bukan diketik tangan.
 
+### Efek suara (`shared/sfx.js`)
+
+Halaman yang memuat `shared/sfx.js` otomatis mendapat tombol **🔊 Suara** (pintasan **M**, pilihan diingat di browser). Semua bunyi disintesis dengan Web Audio API, tanpa file audio. Renderer "net" membunyikan:
+
+| Kejadian di panggung | Bunyi |
+|---|---|
+| Benda muncul / kabel tersambung | `drop` (nada sesuai jenis benda), `link` |
+| Paket berjalan (`flows`) | `req` naik, `res` turun, `data`, `file`, `err` |
+| Status berubah ke `err` / `ok` | dengung rendah / dua nada naik |
+| Kabel `cut` | bunyi putus |
+| Batang tumbuh / turun di bawah nol | nada meluncur naik / turun |
+| `sparkle`, kartu muncul | kilau, desis |
+| Catatan bertanda `alert` / `done` | dua nada peringatan / akor berhasil |
+| Slider di lab | tik yang nadanya mengikuti nilai |
+
+Bunyi hanya diputar saat animasi berjalan, tidak saat melompat langsung ke suatu langkah. Browser baru mengizinkan suara setelah klik atau tombol pertama.
+
 ## Toolkit isometrik (`shared/iso.js`)
 
 Semua panggung digambar sebagai diagram isometrik 3D. Toolkit ini bisa dipakai untuk renderer apa pun:

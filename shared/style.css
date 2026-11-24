@@ -353,3 +353,5 @@ code { font-family: var(--mono); font-size: .86em; background: var(--accent-soft
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
 }
+
+.sound-btn.off { color: var(--ink-3, #94a3b8); }
