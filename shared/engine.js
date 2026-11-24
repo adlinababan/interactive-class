@@ -27,7 +27,9 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   // Markup ringan: `kode` dan **tebal**
   const rich = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-  const fmt = (n) => (typeof n === "number" ? Math.round(n).toLocaleString("id-ID") : n);
+  const fmt = (n, dec) => (typeof n === "number"
+    ? (dec ? n.toLocaleString("id-ID", { minimumFractionDigits: dec, maximumFractionDigits: dec }) : Math.round(n).toLocaleString("id-ID"))
+    : n);
   const store = {
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* abaikan */ } }
@@ -148,7 +150,7 @@
     this.side.append(
       h("div", { class: "side-top" },
         h("a", { class: "brand", href: "#/" },
-          h("span", { class: "brand-mark" }, "AP"),
+          h("span", { class: "brand-mark" + ((c.short || "AP").length > 2 ? " long" : "") }, c.short || "AP"),
           h("span", { class: "brand-text" }, h("b", null, c.titleId), h("small", null, c.code + " · " + c.program))),
         this.toggleBtn),
       full, rail
@@ -417,10 +419,10 @@
       const unit = mt.unit ? " " + mt.unit : "";
       if (typeof v !== "number") { el.b.textContent = "—"; this.shown[mt.key] = undefined; return; }
       if (instant || typeof prev !== "number" || reduceMotion || prev === v) {
-        el.b.textContent = pre + fmt(v) + unit;
+        el.b.textContent = pre + fmt(v, mt.dec) + unit;
         if (!instant && typeof prev !== "number") { el.box.classList.add("bump"); clearTimeout(el.t); el.t = setTimeout(() => el.box.classList.remove("bump"), 650); }
       } else {
-        countUp(el.b, prev, v, pre, unit);
+        countUp(el.b, prev, v, pre, unit, mt.dec);
         el.box.classList.add("bump");
         clearTimeout(el.t);
         el.t = setTimeout(() => el.box.classList.remove("bump"), 650);
@@ -429,12 +431,12 @@
     });
   };
 
-  function countUp(el, from, to, pre, unit) {
+  function countUp(el, from, to, pre, unit, dec) {
     const t0 = performance.now(), dur = 450;
     cancelAnimationFrame(el._raf);
     const step = (t) => {
       const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
-      el.textContent = pre + fmt(from + (to - from) * e) + unit;
+      el.textContent = pre + fmt(from + (to - from) * e, dec) + unit;
       if (p < 1) el._raf = requestAnimationFrame(step);
     };
     el._raf = requestAnimationFrame(step);

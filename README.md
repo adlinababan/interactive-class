@@ -31,10 +31,15 @@ shared/
   iso.{js,css}                 Toolkit diagram isometrik 3D (balok, label, paket, kamera)
   renderers/sort.{js,css}      Renderer panggung untuk pelajaran pengurutan
   renderers/oop.{js,css}       Renderer panggung untuk class, objek, dan inheritance
+  renderers/net.{js,css}       Renderer panggung untuk arsitektur, jaringan, dan grafik keputusan
 algoritma-pemrograman/
   index.html                   Aplikasi kursus
   course.js                    Kerangka modul & pelajaran (dari Course Outline)
   lessons/*.js                 Data pelajaran (bubble-sort, class-objek, atribut-objek, inheritance)
+analisis-perancangan-si/       ISYS6979064 Information Systems Analysis and Design (studi kasus MartKita)
+  course.js                    13 modul, 36 pelajaran
+  lessons/*.js                 System Architecture: evolusi-arsitektur, client-server, online-batch, topologi-jaringan
+                               Development Strategies: make-or-buy, payback-roi-npv, memilih-vendor
 ```
 
 ## Fitur pemutar

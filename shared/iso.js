@@ -184,6 +184,55 @@
     }
   }
 
+  /** Silinder isometrik (database). r dalam unit dunia. */
+  function cylinder(parent, o = {}) {
+    const g = el("g", { class: "iso-box iso-cyl t-" + (o.theme || "teal") }, parent);
+    const inner = el("g", null, g);
+    if (o.drop != null) dropIn(inner, o.drop);
+    const shadow = el("ellipse", { class: "iso-shadow", filter: "url(#iso-soft)" }, inner);
+    const body = el("g", { class: "iso-body" }, inner);
+    const side = el("path", { class: "f-left" }, body);
+    const shade = el("path", { class: "f-shade", fill: "url(#iso-shade)" }, body);
+    const bands = el("path", { class: "f-band" }, body);
+    const top = el("ellipse", { class: "f-top" }, body);
+    const gloss = el("ellipse", { class: "f-gloss", fill: "url(#iso-gloss)" }, body);
+    return {
+      g,
+      set({ x, y, z = 0, r = 0.5, h = 1 }) {
+        const rx = r * Math.SQRT2 * C * U, ry = r * Math.SQRT2 * S * U;
+        const [cx, cyb] = P(x, y, z), cyt = cyb - h * U;
+        side.setAttribute("d", `M${cx - rx} ${cyt} L${cx - rx} ${cyb} A${rx} ${ry} 0 0 0 ${cx + rx} ${cyb} L${cx + rx} ${cyt} Z`);
+        shade.setAttribute("d", `M${cx} ${cyt + ry} L${cx} ${cyb + ry} A${rx} ${ry} 0 0 0 ${cx + rx} ${cyb} L${cx + rx} ${cyt} Z`);
+        const b1 = cyt + (cyb - cyt) / 3, b2 = cyt + (2 * (cyb - cyt)) / 3;
+        bands.setAttribute("d", `M${cx - rx} ${b1} A${rx} ${ry} 0 0 0 ${cx + rx} ${b1} M${cx - rx} ${b2} A${rx} ${ry} 0 0 0 ${cx + rx} ${b2}`);
+        [top, gloss].forEach((e) => { e.setAttribute("cx", cx); e.setAttribute("cy", cyt); e.setAttribute("rx", rx); e.setAttribute("ry", ry); });
+        shadow.setAttribute("cx", cx); shadow.setAttribute("cy", cyb); shadow.setAttribute("rx", rx * 1.15); shadow.setAttribute("ry", ry * 1.15);
+        shadow.style.opacity = 0.22;
+        return this;
+      },
+      theme(t) { g.setAttribute("class", "iso-box iso-cyl t-" + t); return this; }
+    };
+  }
+
+  /** Awan (cloud) di titik dunia; ukuran skala layar. */
+  function cloud(parent, o = {}) {
+    const g = el("g", { class: "iso-cloud" }, parent);
+    const inner = el("g", null, g);
+    if (o.drop != null) dropIn(inner, o.drop, 30);
+    el("path", { class: "cloud-body", d: "M-58 14 C-80 14 -82 -14 -60 -18 C-62 -44 -26 -52 -12 -32 C-2 -58 44 -56 46 -24 C72 -28 80 10 56 14 Z" }, inner);
+    el("path", { class: "cloud-gloss", d: "M-50 -10 C-48 -30 -24 -36 -14 -22 C-4 -42 30 -42 36 -22", fill: "none" }, inner);
+    let placed = false;
+    return {
+      g,
+      at(x, y, z, scale = 1) {
+        const [sx, sy] = P(x, y, z);
+        if (!placed) { g.style.transition = "none"; requestAnimationFrame(() => requestAnimationFrame(() => (g.style.transition = ""))); placed = true; }
+        g.style.transform = `translate(${sx}px, ${sy}px) scale(${scale})`;
+        return this;
+      }
+    };
+  }
+
   /** Ubin datar di lantai (untuk menandai slot/zona). */
   function tile(parent, o = {}) {
     const p = el("polygon", { class: "iso-tile " + (o.cls || "") }, parent);
@@ -270,5 +319,5 @@
     return c;
   }
 
-  window.Iso = { U, C, S, P, el, tween, ease, scene, box, tile, pill, connector, dropIn, sparkle, reduceMotion };
+  window.Iso = { U, C, S, P, el, tween, ease, scene, box, cylinder, cloud, tile, pill, connector, dropIn, sparkle, reduceMotion };
 })();

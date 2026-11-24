@@ -18,10 +18,6 @@
 .oop-out .ol.fresh { animation: olIn .5s var(--ease) both; background: linear-gradient(90deg, rgba(99, 102, 241, .28), transparent 70%); border-radius: 6px; }
 @keyframes olIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 
-/* Tema balok tambahan */
-.t-rose { --top: #ffe4e8; --left: #fda4af; --right: #fb7185; --edge: rgba(190, 18, 60, .45); }
-.t-teal { --top: #dcfaf6; --left: #7ee6d9; --right: #2dd4bf; --edge: rgba(15, 118, 110, .45); }
-.iso-box.miss .f-top, .iso-box.miss .f-left, .iso-box.miss .f-right { stroke-dasharray: 5 4; }
 
 /* Pil: kepala class, member, atribut objek, variabel */
 .iso-pill.cls-head rect { fill: url(#iso-g-indigo); stroke: none; }

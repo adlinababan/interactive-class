@@ -23,6 +23,9 @@
 .t-violet { --top: #fbebff; --left: #f0abfc; --right: #d65ee9; --edge: rgba(134, 25, 143, .42); }
 .t-blue   { --top: #e3f3ff; --left: #8ad3fb; --right: #38bdf8; --edge: rgba(3, 105, 161, .4); }
 .t-sand   { --top: #fff8e1; --left: #fde68a; --right: #f5c542; --edge: rgba(161, 98, 7, .4); }
+.t-rose   { --top: #ffe4e8; --left: #fda4af; --right: #fb7185; --edge: rgba(190, 18, 60, .45); }
+.t-teal   { --top: #dcfaf6; --left: #7ee6d9; --right: #2dd4bf; --edge: rgba(15, 118, 110, .45); }
+.iso-box.miss .f-top, .iso-box.miss .f-left, .iso-box.miss .f-right { stroke-dasharray: 5 4; }
 
 /* Cahaya status */
 .iso-box.t-warm .iso-body, .iso-box.t-warm-strong .iso-body { filter: url(#iso-glow-amber); }

@@ -80,6 +80,22 @@ Anchor: `v:my_dog`, `o:o1`, `o:o1.a:name`, `c:Dog`, `c:Dog.m:sit`, `crowd`.
 
 Frame disusun dengan `OOPStory(keadaanAwal, metricsOf)`: ubah `S.s`, lalu panggil `S.snap({ line, note, flow, marks })`, dan `S.take()` untuk mengambil frame satu langkah. Metrik dihitung otomatis dari keadaan, dan semua output konsol harus dicocokkan dengan menjalankan programnya di Python.
 
+## Renderer "net"
+
+Dipakai untuk arsitektur sistem, jaringan, dan analisis keputusan (biaya, skor). Tata letak memakai `(u, v)` seperti renderer "oop". Isi frame:
+
+| Field | Isi |
+|---|---|
+| `nodes` | `[{ id, kind, label, sub, subTone, u, v, theme, state, range, sparkle }]`. `kind`: server, app, mainframe, pc, terminal, laptop, phone, db, cloud, switch, router, proxy, printer, ap, box, stack, token, bar. `state`: `hl`, `ok`, `err`, `off`, `busy` |
+| `bar` | Batang grafik 3D: `n` = tinggi bertanda (negatif masuk ke bawah lantai), `w` = lebar, `z0` = dasar untuk batang bertumpuk |
+| `edges` | `[{ a, b, kind: "wire" \| "wan" \| "wifi" \| "logic", state: "cut" \| "off" \| "hl", label }]` |
+| `zones` | `[{ id, label, u0, v0, u1, v1, theme }]`: area lantai berlabel |
+| `flows` | `[{ path: [id, ...], kind: "req" \| "res" \| "data" \| "err" \| "file", dur, delay, count }]`: paket berjalan |
+| `card` | Kartu di panggung: `type: "chart" \| "table" \| "lab"`, `at: "center" \| "right"`, `title`, `foot`. Tabel memakai `cols`, `rows`, `hl`, `rowTone`; lab memanggil `lesson.labs[nama](el, helpers)` untuk slider interaktif |
+| `note`, `tone`, `metrics` | Catatan di atas diagram dan nilai strip metrik |
+
+Frame disusun dengan `NetStory(keadaanAwal)`: ubah `S.s` atau pakai `S.set(id, props)`, `S.drop(...)`, lalu `S.snap({ note, flows, card, metrics })` dan `S.take()`. Semua angka (antrean, TCO, payback, ROI, NPV, skor berbobot) dihitung dari rumus di file pelajaran, bukan diketik tangan.
+
 ## Toolkit isometrik (`shared/iso.js`)
 
 Semua panggung digambar sebagai diagram isometrik 3D. Toolkit ini bisa dipakai untuk renderer apa pun:
