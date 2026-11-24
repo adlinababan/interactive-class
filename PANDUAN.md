@@ -96,6 +96,10 @@ Dipakai untuk arsitektur sistem, jaringan, dan analisis keputusan (biaya, skor).
 
 Frame disusun dengan `NetStory(keadaanAwal)`: ubah `S.s` atau pakai `S.set(id, props)`, `S.drop(...)`, lalu `S.snap({ note, flows, card, metrics })` dan `S.take()`. Semua angka (antrean, TCO, payback, ROI, NPV, skor berbobot) dihitung dari rumus di file pelajaran, bukan diketik tangan.
 
+### Animasi dan pengaturan "kurangi gerakan"
+
+Secara bawaan, animasi mengikuti pengaturan perangkat (*prefers-reduced-motion*). Banyak laptop Windows mematikan "Animation effects", sehingga pelajaran langsung melompat ke hasil akhir tanpa animasi. Pada perangkat seperti itu muncul tombol **✨ Nyalakan animasi** di atas panggung. Pilihannya disimpan di `localStorage` (`kelas:animasi` = `on`/`off`) dan dibaca lewat `KelasMotion.reduce` serta `Iso.reduceMotion`.
+
 ### Efek suara (`shared/sfx.js`)
 
 Halaman yang memuat `shared/sfx.js` otomatis mendapat tombol **🔊 Suara** (pintasan **M**, pilihan diingat di browser). Semua bunyi disintesis dengan Web Audio API, tanpa file audio. Renderer "net" membunyikan:

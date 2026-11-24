@@ -8,7 +8,17 @@
   const lessons = {};
   const renderers = {};
   const loading = {};
-  const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Animasi mengikuti pengaturan "kurangi gerakan" perangkat, kecuali dosen/mahasiswa memilih sendiri lewat tombol Animasi.
+  const motionMQ = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+  const Motion = window.KelasMotion = {
+    get device() { return !!(motionMQ && motionMQ.matches); },
+    get pref() { try { return localStorage.getItem("kelas:animasi"); } catch (e) { return null; } },
+    get reduce() { const p = this.pref; return p === "off" ? true : p === "on" ? false : this.device; },
+    set(on) { try { localStorage.setItem("kelas:animasi", on ? "on" : "off"); } catch (e) {} applyMotion(); }
+  };
+  function applyMotion() { document.documentElement.classList.toggle("reduce-motion", Motion.reduce); }
+  applyMotion();
+  if (motionMQ && motionMQ.addEventListener) motionMQ.addEventListener("change", applyMotion);
 
   // ---------- utilitas ----------
   function h(tag, attrs, ...kids) {
@@ -294,11 +304,13 @@
     this.playBtn = h("button", { class: "btn", onclick: () => this.togglePause(), "aria-label": "Jeda animasi" }, "❚❚ Jeda");
     const tools = h("div", { class: "stage-tools" },
       h("div", { class: "legend" }, (L.legend || []).map((g) => h("span", null, h("i", { style: "background:" + g.color + (g.border ? ";border:1.5px solid " + g.border : "") + (g.round ? ";border-radius:50%" : "") }), g.label))),
+      (this.motionBtn = h("button", { class: "btn motion-btn", onclick: () => this.toggleMotion(), title: "Nyalakan/matikan animasi" })),
       window.Sfx ? (this.soundBtn = h("button", { class: "btn sound-btn", onclick: () => this.toggleSound(), title: "Efek suara  M" })) : null,
       h("button", { class: "btn", onclick: () => this.replay(), "aria-label": "Ulangi animasi langkah ini" }, "↺ Ulangi"),
       this.playBtn,
       this.presentBtn = h("button", { class: "btn present-btn", onclick: () => this.app.setPresent(!this.app.presenting), "aria-pressed": String(!!this.app.presenting), title: "Mode presentasi  P" }, this.app.presenting ? "✕ Keluar" : "⛶ Presentasi"));
     this.syncSound();
+    this.syncMotion();
     this.stage = h("div", { class: "stage" });
     this.stepper = h("div", { class: "stepper", role: "tablist", "aria-label": "Langkah pelajaran" },
       L.steps.map((s, i) => h("button", { role: "tab", onclick: () => this.go(i), title: s.title }, h("span", { class: "n" }, String(i + 1)), h("span", { class: "lbl" }, s.short))));
@@ -342,7 +354,7 @@
       b.setAttribute("aria-selected", String(i === k));
     });
     const cur = this.stepper.children[k];
-    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "center", behavior: reduceMotion ? "auto" : "smooth" });
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "center", behavior: Motion.reduce ? "auto" : "smooth" });
     this.renderPanel();
     this.learnEls.forEach((li) => {
       const done = li._at != null && k >= li._at;
@@ -363,7 +375,7 @@
     this.paused = false;
     this.fi = -1;
     this.show(this.baseFrame(this.k), true);
-    if (reduceMotion) { this.fi = st.frames.length - 1; this.show(last(st.frames), true); this.setPlayBtn("done"); return; }
+    if (Motion.reduce) { this.fi = st.frames.length - 1; this.show(last(st.frames), true); this.setPlayBtn("done"); return; }
     this.setPlayBtn("playing");
     this.timer = setTimeout(() => this.tick(), 380);
   };
@@ -404,6 +416,17 @@
     this.soundBtn.setAttribute("aria-label", on ? "Matikan efek suara" : "Nyalakan efek suara");
     this.soundBtn.classList.toggle("off", !on);
   };
+  Player.prototype.syncMotion = function () {
+    const b = this.motionBtn; if (!b) return;
+    const off = Motion.reduce;
+    // tombol hanya tampil bila perangkat meminta gerakan dikurangi, atau pengguna pernah memilih sendiri
+    b.hidden = !(Motion.device || Motion.pref);
+    b.textContent = off ? "✨ Nyalakan animasi" : "✨ Animasi";
+    b.classList.toggle("attn", off);
+    b.setAttribute("aria-pressed", String(!off));
+    b.title = off ? "Animasi sedang mati (pengaturan perangkat). Klik untuk menyalakan." : "Klik untuk mematikan animasi";
+  };
+  Player.prototype.toggleMotion = function () { Motion.set(Motion.reduce); this.syncMotion(); this.replay(); };
   Player.prototype.toggleSound = function () { window.Sfx.setEnabled(!window.Sfx.enabled); this.syncSound(); };
 
   Player.prototype.show = function (frame, instant) {
@@ -430,7 +453,7 @@
       const pre = approx[mt.key] ? "≈ " : "";
       const unit = mt.unit ? " " + mt.unit : "";
       if (typeof v !== "number") { el.b.textContent = "—"; this.shown[mt.key] = undefined; return; }
-      if (instant || typeof prev !== "number" || reduceMotion || prev === v) {
+      if (instant || typeof prev !== "number" || Motion.reduce || prev === v) {
         el.b.textContent = pre + fmt(v, mt.dec) + unit;
         if (!instant && typeof prev !== "number") { el.box.classList.add("bump"); clearTimeout(el.t); el.t = setTimeout(() => el.box.classList.remove("bump"), 650); }
       } else {

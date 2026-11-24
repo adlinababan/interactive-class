@@ -12,7 +12,8 @@
   "use strict";
   const NS = "http://www.w3.org/2000/svg";
   const U = 40, C = Math.cos(Math.PI / 6), S = 0.5;
-  const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const mq = window.matchMedia ? matchMedia("(prefers-reduced-motion: reduce)") : null;
+  const motionOff = () => (window.KelasMotion ? window.KelasMotion.reduce : !!(mq && mq.matches));
   let uid = 0;
 
   const P = (x, y, z = 0) => [(x - y) * C * U, (x + y) * S * U - z * U];
@@ -32,7 +33,7 @@
 
   /** Animasi berbasis waktu. step(t) dipanggil dengan t 0→1 (sudah di-ease). Mengembalikan fungsi batal. */
   function tween(dur, step, done, easing = ease.inOut) {
-    if (reduceMotion || dur <= 0) { step(1); done && done(); return () => {}; }
+    if (motionOff() || dur <= 0) { step(1); done && done(); return () => {}; }
     let raf, t0 = null, alive = true;
     const tick = (now) => {
       if (!alive) return;
@@ -149,7 +150,7 @@
 
   /** Animasi "jatuh ke panggung". Memakai Web Animations agar tidak terulang saat urutan DOM berubah. */
   function dropIn(node, delay = 0, dist = 60) {
-    if (reduceMotion || !node.animate) return;
+    if (motionOff() || !node.animate) return;
     node.animate(
       [{ transform: `translateY(${-dist}px)`, opacity: 0 }, { opacity: 1, offset: 0.6 }, { transform: "translateY(0)", opacity: 1 }],
       { duration: 750, delay, easing: "cubic-bezier(.2,.9,.25,1.15)", fill: "backwards" }
@@ -158,7 +159,7 @@
 
   /** Efek kilau: cincin cahaya + partikel bintang memancar dari satu titik dunia, lalu hilang. */
   function sparkle(layer, x, y, z, color = "#10b981", count = 14) {
-    if (reduceMotion || !layer.animate) return;
+    if (motionOff() || !layer.animate) return;
     const [cx, cy] = P(x, y, z);
     // cincin isometrik (elips pipih) yang membesar dan memudar
     const ring = el("ellipse", { cx: 0, cy: 0, rx: 30, ry: 17, fill: "none", stroke: color, "stroke-width": 3 }, layer);
@@ -298,7 +299,7 @@
           if (o.both) path.setAttribute("marker-start", arrow); else path.removeAttribute("marker-start");
         }
         packets.forEach((p) => p.remove()); packets = [];
-        if (o.packets && !reduceMotion) {
+        if (o.packets && !motionOff()) {
           const dur = o.dur || 1.4;
           packets.push(packet(g, d, "go", dur, 0));
           if (o.both !== false) packets.push(packet(g, back, "back", dur, dur / 2));
@@ -319,5 +320,6 @@
     return c;
   }
 
-  window.Iso = { U, C, S, P, el, tween, ease, scene, box, cylinder, cloud, tile, pill, connector, dropIn, sparkle, reduceMotion };
+  window.Iso = { U, C, S, P, el, tween, ease, scene, box, cylinder, cloud, tile, pill, connector, dropIn, sparkle };
+  Object.defineProperty(window.Iso, "reduceMotion", { get: motionOff });
 })();
