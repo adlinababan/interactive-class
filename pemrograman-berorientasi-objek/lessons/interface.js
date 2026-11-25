@@ -246,17 +246,18 @@
       {
         kind: "MASALAH", short: "Dua induk", title: "Satu class, dua induk?",
         text: [
-          "Point sudah `extends Shape`. Kita juga ingin Point bisa dicetak, sama seperti class lain yang sama sekali bukan bentuk, misalnya Invoice. Idenya: buat class `Printable`, lalu `extends Shape, Printable`.",
-          "Compiler menolak (*'{' expected*). Java hanya mengizinkan **satu superclass** untuk setiap class (*single inheritance*)."
+          "Point sudah menjadi anak `Shape`. Kita ingin Point juga bisa dicetak, sama seperti class lain yang bukan bentuk (misalnya Invoice). Idenya: buat class `Printable`, lalu tulis `extends Shape, Printable`.",
+          "Compiler menolak. Di Java, setiap class hanya boleh punya **satu induk** (*single inheritance*)."
         ],
+        callout: { type: "ANALOGI", text: "Seorang anak hanya punya satu ayah kandung, tetapi boleh mengikuti banyak kursus untuk menambah keahlian. Kursus itulah interface." },
         changed: [["+", "Error: '{' expected"]],
         frames: steps[0]
       },
       {
         kind: "TEKNIK", short: "interface", title: "Mendeklarasikan interface",
         text: [
-          "**Interface** adalah konstruksi mirip class yang hanya berisi **konstanta** dan **method abstract**. Tujuannya menetapkan **perilaku bersama** untuk objek-objek.",
-          "Sesuai slide: `interface Shape { public double area(); public double volume(); }`. Seperti abstract class, interface **tidak bisa di-new**."
+          "**Interface** adalah daftar kemampuan yang dijanjikan, tanpa isi. Ia hanya berisi **konstanta** dan **method abstract** (nama method tanpa isi).",
+          "Sesuai slide: `interface Shape { public double area(); public double volume(); }`. Sama seperti abstract class, interface **tidak bisa di-new**."
         ],
         callout: { type: "PERLU DIKETAHUI", text: "Sejak Java 8, interface juga boleh berisi `default` dan `static` method yang punya isi. Pelajaran ini mengikuti definisi klasik di slide." },
         changed: [["+", "interface Shape"], ["+", "Error: cannot be instantiated"]],
@@ -265,8 +266,8 @@
       {
         kind: "TEKNIK", short: "implements", title: "implements: memenuhi kontrak",
         text: [
-          "Class memakai interface dengan kata kunci **implements**: `public class Point implements Shape`.",
-          "Kedua method interface **wajib di-override**. Jika `volume()` tertinggal, compiler menolak. Setelah keduanya ditulis, Point diterima."
+          "Class memakai interface dengan kata **implements**: `public class Point implements Shape`. Artinya Point berjanji punya semua method di interface itu.",
+          "Janji harus ditepati: **semua** method wajib ditulis. Kalau `volume()` tertinggal, compiler menolak. Setelah keduanya ditulis, Point diterima."
         ],
         changed: [["+", "Point implements Shape"], ["+", "area() dan volume() di Point"]],
         frames: steps[2]
@@ -275,7 +276,7 @@
         kind: "SOLUSI", short: "Dipakai", title: "Interface sebagai tipe",
         text: [
           "`Point p = new Point(); p.print();` mencetak `point: 0,0`, persis seperti di slide.",
-          "Interface juga bisa menjadi **tipe variabel**: `Shape s = p`. Lewat `s`, hanya method milik Shape yang terlihat, dan `s.area()` menjalankan versi Point: `0.0`."
+          "Interface juga bisa dipakai sebagai label variabel: `Shape s = p`. Lewat `s`, hanya method milik Shape yang terlihat, dan `s.area()` menjalankan versi Point: `0.0`."
         ],
         changed: [["+", "objek Point"], ["+", "Output: point: 0,0 dan 0.0"]],
         frames: steps[3]
@@ -283,8 +284,8 @@
       {
         kind: "TEKNIK", short: "Konstanta", title: "Variabel di interface adalah konstanta",
         text: [
-          "`double PI = 3.14;` di dalam interface otomatis bersifat **public static final**: dibaca lewat nama interface (`Shape.PI` → `3.14`) dan tidak bisa diubah.",
-          "`Shape.PI = 3;` ditolak: *cannot assign a value to static final variable PI*."
+          "Variabel di dalam interface, misalnya `double PI = 3.14;`, otomatis menjadi **konstanta** (`public static final`): dibaca lewat nama interface (`Shape.PI` → `3.14`) dan **tidak bisa diubah**.",
+          "`Shape.PI = 3;` langsung ditolak compiler."
         ],
         changed: [["+", "double PI = 3.14"], ["+", "Error: final variable"]],
         frames: steps[4]
@@ -292,8 +293,8 @@
       {
         kind: "TEKNIK", short: "Banyak interface", title: "Banyak interface sekaligus",
         text: [
-          "Class hanya boleh punya satu superclass, tetapi boleh **implements banyak interface**: `class Point implements Shape, Printable`.",
-          "Invoice bukan bentuk, tetapi juga Printable. Dalam satu loop `Printable[]`, `it.printInfo()` menjalankan versi Point lalu versi Invoice."
+          "Class hanya boleh punya satu induk, tetapi boleh **implements banyak interface**: `class Point implements Shape, Printable`.",
+          "Invoice bukan bentuk, tetapi juga Printable. Dalam satu loop `Printable[]`, perintah `it.printInfo()` yang sama menjalankan versi Point, lalu versi Invoice."
         ],
         callout: { type: "IDE KUNCI", text: "Interface menghubungkan class yang tidak bersaudara, asalkan perilakunya sama. Bentuk lengkapnya: `class A extends B implements I1, I2, …`." },
         changed: [["+", "interface Printable"], ["+", "class Invoice"], ["+", "2 baris output"]],
@@ -302,8 +303,8 @@
       {
         kind: "KASUS", short: "extends", title: "Kasus: interface mewarisi interface",
         text: [
-          "Slide menyebut interface bisa mewarisi interface lain dengan **extends**, bahkan lebih dari satu: `interface PrintableShape extends Shape, Printable { }`.",
-          "Class Stiker yang `implements PrintableShape` wajib mengisi ketiga method: `area()`, `volume()`, dan `printInfo()`. Hasilnya `Stiker 5 x 2.5 cm` dan luas `12.5`."
+          "Interface juga bisa mewarisi interface lain dengan **extends**, bahkan lebih dari satu: `interface PrintableShape extends Shape, Printable { }`.",
+          "Class Stiker yang `implements PrintableShape` wajib menulis ketiga method sekaligus: `area()`, `volume()`, dan `printInfo()`. Hasilnya `Stiker 5 x 2.5 cm` dan luas `12.5`."
         ],
         changed: [["+", "interface PrintableShape"], ["+", "class Stiker"]],
         frames: steps[6]

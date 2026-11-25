@@ -80,6 +80,24 @@ Anchor: `v:my_dog`, `o:o1`, `o:o1.a:name`, `c:Dog`, `c:Dog.m:sit`, `crowd`.
 
 Frame disusun dengan `OOPStory(keadaanAwal, metricsOf)`: ubah `S.s`, lalu panggil `S.snap({ line, note, flow, marks })`, dan `S.take()` untuk mengambil frame satu langkah. Metrik dihitung otomatis dari keadaan, dan semua output konsol harus dicocokkan dengan menjalankan programnya di Python.
 
+## Renderer "db"
+
+Dipakai kursus Teknologi Basis Data. Panggungnya datar (bukan isometrik) agar tabel mudah dibaca. Frame berisi `items` yang ditata berjajar:
+
+| Tipe item | Isi |
+|---|---|
+| `table` | `cols`, `rows`, `keys` (identitas baris untuk animasi geser), `state` per indeks baris (`hl`, `ok`, `out`, `err`, `new`, `dim`), `group` (indeks warna kelompok, untuk GROUP BY) |
+| `pages` | Halaman disk sebagai grid kotak: `n`, `cols`, `scale` (1 kotak = berapa halaman), `read` (urutan dibaca, menyala bergiliran), `hit`, `count`/`total` (angka asli), `foot` (keterangan bebas) |
+| `tree` | B+ tree: `levels` berisi simpul `{ id, keys, parent }`, `path` (jalur yang menyala berurutan), `hit` |
+| `bars` | Grafik batang mendatar: `items: [{ label, value, tone: ok/warn/bad }]`, `unit`, `max` |
+| `badge`, `flow` | Angka besar, dan panah/teks penghubung kecil |
+
+Bagian bawah: panel SQL (`sql` = versi kode, `line` = id atau daftar id baris) dan panel HASIL (`result: { cols, rows, state }` dan/atau `out`, dengan awalan `!` untuk error dan `#` untuk baris rencana EXPLAIN). Frame disusun dengan `DBStory(keadaanAwal, metricsOf)`.
+
+Angka halaman di modul 08 diambil dari `EXPLAIN (ANALYZE, BUFFERS)` PostgreSQL 16 pada tabel Emp 100.000 baris (830 halaman, urutan fisik acak). Semua query modul 09 dijalankan pada data Sailors/Boats/Reserves buku Ramakrishnan & Gehrke.
+
+Callout tipe `ANALOGI` (☕) tersedia untuk perumpamaan sehari-hari, di samping `IDE KUNCI` dan `PERLU DIKETAHUI`.
+
 ## Renderer "oop" untuk Java
 
 Pelajaran dengan `lang: "java"` mendapat pewarnaan sintaks Java dan label panah `extends`. Tambahan untuk kursus PBO:

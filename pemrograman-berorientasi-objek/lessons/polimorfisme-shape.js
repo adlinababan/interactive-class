@@ -201,8 +201,8 @@
       {
         kind: "MASALAH", short: "Rantai if", title: "Satu if untuk setiap bentuk",
         text: [
-          "Program menghitung luas sebuah persegi panjang 4 × 5 dan lingkaran berjari-jari 7. Tanpa polimorfisme, loop harus memeriksa jenis tiap objek: `if (s instanceof Rectangle) … else if (s instanceof Circle) …`, lalu mengubah tipenya (*casting*) sebelum menghitung.",
-          "Setiap bentuk baru berarti **satu cabang if baru** di setiap loop yang menghitung luas."
+          "Program menghitung luas persegi panjang 4 × 5 dan lingkaran berjari-jari 7. Tanpa polimorfisme, loop harus bertanya satu per satu: \"apakah ini persegi panjang? kalau bukan, apakah lingkaran?\" (`if … instanceof …`).",
+          "Setiap ada bentuk baru, loop harus ditambah satu `if` lagi. Lama-lama kodenya panjang dan mudah salah."
         ],
         changed: [["+", "Rectangle(4, 5) dan Circle(7)"], ["+", "2 cabang if di loop"]],
         frames: steps[0]
@@ -210,17 +210,18 @@
       {
         kind: "TEKNIK", short: "Override", title: "Satu method, banyak rumus",
         text: [
-          "Sesuai slide, `computeArea()` diletakkan di superclass `Shape`, lalu **di-override** di `Rectangle` dan `Circle` dengan rumusnya masing-masing.",
-          "Versi Shape hanya mengembalikan 0, karena \"bentuk\" yang umum tidak punya rumus luas."
+          "Ide polimorfisme: setiap bentuk tahu cara menghitung luasnya sendiri. Method `computeArea()` ditaruh di induk `Shape`, lalu **di-override** oleh `Rectangle` dan `Circle` dengan rumus masing-masing.",
+          "Versi di Shape hanya mengembalikan 0, karena \"bentuk\" yang umum tidak punya rumus luas."
         ],
+        callout: { type: "ANALOGI", text: "Guru berkata \"kerjakan tugasmu\" ke seluruh kelas. Setiap murid mengerjakan tugasnya sendiri; guru tidak perlu memberi instruksi berbeda ke tiap murid." },
         changed: [["+", "Shape.computeArea()"], ["+", "Rectangle.computeArea() dan Circle.computeArea()"], ["~", "Cabang if 2 → 0"]],
         frames: steps[1]
       },
       {
         kind: "TEKNIK", short: "Shape[]", title: "Array bertipe supertype",
         text: [
-          "`Shape[] shapes` boleh berisi objek Rectangle dan Circle, karena keduanya subtype dari Shape.",
-          "Di dalam loop, variabel `Shape s` menunjuk elemen-elemen itu bergantian."
+          "Array bertipe `Shape[]` boleh diisi persegi panjang dan lingkaran, karena keduanya adalah Shape.",
+          "Di dalam loop, variabel `Shape s` menunjuk isi array satu per satu."
         ],
         changed: [["+", "shapes[0] dan shapes[1]"]],
         frames: steps[2]
@@ -228,8 +229,8 @@
       {
         kind: "TEKNIK", short: "Iterasi 1", title: "Iterasi 1: Rectangle",
         text: [
-          "`s.computeArea()`: saat ini `s` menunjuk objek Rectangle. Dynamic binding memilih `Rectangle.computeArea()`, sehingga hasilnya `4 × 5 = 20.0`.",
-          "Versi Shape (yang mengembalikan 0) dilewati."
+          "Putaran pertama: `s` menunjuk persegi panjang. Java menjalankan `computeArea()` milik Rectangle: `4 × 5 = 20.0`.",
+          "Versi Shape yang mengembalikan 0 dilewati."
         ],
         changed: [["+", "Output: 20.0"]],
         frames: steps[3]
@@ -237,8 +238,8 @@
       {
         kind: "SOLUSI", short: "Iterasi 2", title: "Iterasi 2: baris yang sama, objek berbeda",
         text: [
-          "Baris kodenya persis sama, tetapi kini `s` menunjuk Circle. Yang dijalankan `Circle.computeArea()`: `3.14 × 7 × 7 = 153.86`.",
-          "Total luas **173.86**, dan loop tidak berisi satu if pun. Inilah polimorfisme: satu pemanggilan, perilakunya mengikuti objek."
+          "Putaran kedua memakai **baris kode yang sama persis**, tetapi `s` kini menunjuk lingkaran. Yang dijalankan versi Circle: `3.14 × 7 × 7 = 153.86`.",
+          "Total luasnya **173.86**, dan loop tidak berisi satu `if` pun. Inilah polimorfisme: satu perintah, hasilnya menyesuaikan objek."
         ],
         callout: { type: "IDE KUNCI", text: "Kode pemanggil cukup bicara dengan tipe umum (Shape). Detail tiap bentuk ada di class bentuk itu sendiri." },
         changed: [["+", "Output: 153.86"], ["~", "Total luas — → 173.86"]],
@@ -247,8 +248,8 @@
       {
         kind: "KASUS", short: "Triangle", title: "Kasus: bentuk baru datang",
         text: [
-          "Triangle (alas 6, tinggi 4) ditambahkan sebagai class baru dengan `computeArea()` sendiri, lalu dimasukkan ke array.",
-          "Loop **tidak diubah satu baris pun**. Hasilnya `12.0`, dan total naik menjadi **185.86**. Bandingkan dengan versi if: perlu satu cabang baru."
+          "Bentuk baru datang: segitiga (alas 6, tinggi 4). Kita cukup membuat class `Triangle` dengan `computeArea()` sendiri, lalu memasukkannya ke array.",
+          "Loop **tidak diubah sama sekali**. Hasilnya `12.0`, total naik menjadi **185.86**. Pada versi if, kita harus menambah satu cabang baru."
         ],
         changed: [["+", "class Triangle"], ["+", "Output: 12.0"], ["~", "Total luas 173.86 → 185.86"]],
         frames: steps[5]
@@ -256,8 +257,8 @@
       {
         kind: "KASUS", short: "Lupa override", title: "Kasus: lupa meng-override",
         text: [
-          "Trapezoid (3, 5, tinggi 4) ditambahkan, tetapi programmer lupa menulis `computeArea()`. Tidak ada error kompilasi, karena Trapezoid mewarisi versi Shape.",
-          "Hasilnya `0.0`, padahal seharusnya `(3 + 5) ÷ 2 × 4 = 16.0`. Total tetap 185.86. Kesalahan seperti ini mudah lolos sampai ke pengguna."
+          "Trapezoid (3, 5, tinggi 4) ditambahkan, tetapi programmer **lupa** menulis `computeArea()`. Java tidak protes, karena Trapezoid otomatis mewarisi versi Shape.",
+          "Hasilnya `0.0`, padahal seharusnya `(3 + 5) ÷ 2 × 4 = 16.0`. Program jalan tanpa error, tetapi jawabannya salah. Kesalahan diam-diam seperti ini paling berbahaya."
         ],
         callout: { type: "PERLU DIKETAHUI", text: "Solusinya: jadikan `computeArea()` **abstract**, sehingga compiler memaksa setiap subclass menulisnya. Itu topik pelajaran berikutnya." },
         changed: [["+", "class Trapezoid (tanpa computeArea)"], ["+", "Output: 0.0"]],

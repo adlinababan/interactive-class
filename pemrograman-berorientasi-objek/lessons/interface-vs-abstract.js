@@ -202,8 +202,8 @@
       {
         kind: "MASALAH", short: "Kode kembar", title: "Tiga cara bayar, kode kembar",
         text: [
-          "Kasir kantin kampus menerima **tunai**, **transfer**, dan **kartu kredit**. Ketiga class punya `jumlah` dan `cetakStruk()` yang isinya sama; hanya `biayaAdmin()` yang berbeda.",
-          "Bagian yang sama ditulis tiga kali. Mana yang lebih cocok untuk menyatukannya: abstract class atau interface?"
+          "Kasir kantin kampus menerima **tunai**, **transfer**, dan **kartu kredit**. Ketiga class punya `jumlah` dan `cetakStruk()` yang isinya sama persis; yang berbeda hanya `biayaAdmin()`.",
+          "Kode yang sama ditulis tiga kali. Kalau format struk berubah, harus diubah di tiga tempat. Mana yang cocok untuk menyatukannya: abstract class atau interface?"
         ],
         changed: [["+", "Tunai, Transfer, KartuKredit"], ["+", "6 bagian kembar"]],
         frames: steps[0]
@@ -211,17 +211,18 @@
       {
         kind: "TEKNIK", short: "Abstract class", title: "Abstract class untuk bagian yang sama",
         text: [
-          "Ketiganya **adalah** pembayaran, dan berbagi **data** (`nama`, `jumlah`) serta **kode** (`cetakStruk()`). Ini cocok untuk **abstract class** `Pembayaran`.",
-          "Subclass cukup `extends Pembayaran`, memanggil konstruktor induk lewat `super(\"Tunai\", jumlah)`, lalu mengisi `biayaAdmin()`. Slide menyebutnya **constructor chain**: konstruktor abstract class dipanggil lewat konstruktor subclass."
+          "Ketiganya **adalah** pembayaran dan berbagi **data** (`nama`, `jumlah`) serta **kode** (`cetakStruk()`). Ini cocok untuk **abstract class** `Pembayaran`.",
+          "Setiap class anak cukup menulis `extends Pembayaran`, memanggil konstruktor induk dengan `super(\"Tunai\", jumlah)`, lalu mengisi `biayaAdmin()`. Bagian kembar turun dari 6 menjadi 0."
         ],
+        callout: { type: "ANALOGI", text: "Template surat resmi: kop, salam, dan tanda tangan sudah tersedia (kode bersama). Setiap surat cukup mengisi bagian isinya." },
         changed: [["+", "abstract class Pembayaran"], ["~", "Bagian kembar 6 → 0"]],
         frames: steps[1]
       },
       {
         kind: "TEKNIK", short: "Loop", title: "Kode induk, detail anak",
         text: [
-          "`p.cetakStruk()` selalu menjalankan versi induk, tetapi di dalamnya `biayaAdmin()` mengikuti objeknya: 0 untuk tunai, 2.500 untuk transfer, 2% untuk kartu kredit.",
-          "Kode bersama ditulis sekali di abstract class; bagian yang berbeda diisi tiap subclass."
+          "`p.cetakStruk()` selalu menjalankan versi milik induk. Tetapi di dalamnya, `biayaAdmin()` menyesuaikan objeknya: 0 untuk tunai, 2.500 untuk transfer, 2% untuk kartu kredit.",
+          "Kode bersama cukup ditulis sekali di induk; bagian yang berbeda diisi tiap anak."
         ],
         changed: [["+", "3 struk tercetak"]],
         frames: steps[2]
@@ -229,8 +230,8 @@
       {
         kind: "TEKNIK", short: "Interface", title: "Interface untuk kemampuan tambahan",
         text: [
-          "Hanya kartu kredit yang **bisa** dicicil. Kemampuan ini bukan milik semua pembayaran, jadi tidak diletakkan di `Pembayaran`. Ia menjadi **interface** `Cicilan`.",
-          "`class KartuKredit extends Pembayaran implements Cicilan`: satu superclass, ditambah kontrak cicilan."
+          "Hanya kartu kredit yang **bisa dicicil**. Kemampuan ini bukan milik semua pembayaran, jadi tidak ditaruh di `Pembayaran`. Ia dibuat sebagai **interface** `Cicilan`.",
+          "`class KartuKredit extends Pembayaran implements Cicilan`: punya satu induk, ditambah satu kemampuan."
         ],
         callout: { type: "IDE KUNCI", text: "Abstract class menjawab \"objek ini **adalah** apa?\". Interface menjawab \"objek ini **bisa** apa?\"." },
         changed: [["+", "interface Cicilan"], ["+", "KartuKredit.cicilanPerBulan()"]],
@@ -239,7 +240,7 @@
       {
         kind: "SOLUSI", short: "Cicilan", title: "Cicilan 6 bulan",
         text: [
-          "`Cicilan c = new KartuKredit(3000000)`: lewat tipe interface, `c.cicilanPerBulan(6)` menghitung `(3.000.000 + 60.000) ÷ 6 = 510000.0`.",
+          "`Cicilan c = new KartuKredit(3000000)`. Lewat label Cicilan, `c.cicilanPerBulan(6)` menghitung `(3.000.000 + 60.000) ÷ 6 = 510000.0`.",
           "`Cicilan.MAKS_BULAN` bernilai `12`: konstanta milik interface, dibaca lewat nama interface-nya."
         ],
         changed: [["+", "Output: 510000.0 dan 12"]],
@@ -248,8 +249,8 @@
       {
         kind: "KASUS", short: "Dua induk", title: "Kasus: dua superclass",
         text: [
-          "Tim ingin KartuKredit juga mewarisi class `Kartu` (berisi nomor kartu). `extends Pembayaran, Kartu` ditolak compiler.",
-          "Java hanya mengizinkan **satu** superclass, tetapi **banyak** interface. Jika Kartu dijadikan interface, KartuKredit boleh `implements Cicilan, Kartu`."
+          "Tim ingin KartuKredit juga menjadi anak dari class `Kartu` (berisi nomor kartu). `extends Pembayaran, Kartu` ditolak compiler.",
+          "Java hanya mengizinkan **satu** induk, tetapi **banyak** interface. Kalau `Kartu` dijadikan interface, KartuKredit boleh menulis `implements Cicilan, Kartu`."
         ],
         changed: [["+", "Error: '{' expected"]],
         frames: steps[5]
@@ -257,8 +258,8 @@
       {
         kind: "KASUS", short: "Isi interface", title: "Kasus: aturan isi interface",
         text: [
-          "Sesuai tabel di slide, variabel interface harus `public static final`, sehingga `double saldo;` tanpa nilai ditolak (*= expected*).",
-          "Interface juga **tidak punya konstruktor**: `Cicilan(int bulan) { }` ditolak. Abstract class justru boleh punya keduanya: variabel bebas dan konstruktor."
+          "Sesuai tabel di slide, variabel di interface harus berupa konstanta, jadi `double saldo;` tanpa nilai ditolak (*= expected*).",
+          "Interface juga **tidak punya konstruktor**: `Cicilan(int bulan) { }` ditolak. Abstract class justru boleh punya keduanya."
         ],
         changed: [["+", "Error: = expected"], ["+", "Error: <identifier> expected"]],
         frames: steps[6]

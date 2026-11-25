@@ -251,8 +251,8 @@
       {
         kind: "MASALAH", short: "Bentuk umum", title: "Objek \"bentuk\" tanpa bentuk",
         text: [
-          "Di pelajaran sebelumnya, `Shape` punya method luas yang mengembalikan 0. Akibatnya siapa pun bisa menulis `new Shape()` dan mendapat luas `0.0`. Bentuk apa itu?",
-          "Lebih parah lagi, subclass yang lupa meng-override (Trapezoid) diam-diam memakai versi 0 ini. Di slide Sesi 9, method luasnya bernama `area()`."
+          "Di pelajaran sebelumnya, `Shape` punya method luas yang mengembalikan 0. Akibatnya siapa pun bisa menulis `new Shape()` dan mendapat luas `0.0`. Bentuk apa itu? Tidak jelas.",
+          "Lebih parah lagi, bentuk yang lupa menulis rumus (Trapezoid) diam-diam memakai angka 0 ini. Di slide Sesi 9, method luasnya bernama `area()`."
         ],
         changed: [["+", "objek Shape"], ["+", "Output: 0.0"]],
         frames: steps[0]
@@ -260,18 +260,18 @@
       {
         kind: "TEKNIK", short: "Abstract method", title: "Abstract method",
         text: [
-          "**Abstract method** adalah method yang dideklarasikan **tanpa implementasi**: tidak ada kurung kurawal, langsung diakhiri titik koma. `abstract public double area();`",
-          "Jika sebuah class punya method abstract, class itu **wajib** dideklarasikan `abstract`. Tanpa itu compiler menolak. Dengan `abstract class Shape`, compiler menerimanya."
+          "**Abstract method** adalah method yang hanya ditulis namanya, **tanpa isi**: tidak ada kurung kurawal, langsung titik koma. `abstract public double area();` artinya \"setiap bentuk wajib punya `area()`, rumusnya diisi nanti\".",
+          "Kalau sebuah class punya method abstract, class itu **wajib** diberi kata `abstract`. Tanpa itu compiler menolak; dengan `abstract class Shape`, diterima."
         ],
-        callout: { type: "PERLU DIKETAHUI", text: "Sebaliknya tidak wajib: abstract class boleh tidak punya method abstract sama sekali. Ia tetap tidak bisa dibuat objeknya." },
+        callout: { type: "ANALOGI", text: "Formulir dengan kolom wajib yang masih kosong. Formulirnya sah sebagai cetakan, tetapi baru bisa dipakai setelah kolomnya diisi." },
         changed: [["~", "area() → abstract area();"], ["+", "abstract class Shape"]],
         frames: steps[1]
       },
       {
         kind: "TEKNIK", short: "Tanpa new", title: "Tidak bisa dibuat objeknya",
         text: [
-          "Abstract class **tidak bisa di-instansiasi**: `new Shape()` ditolak dengan pesan *Shape is abstract; cannot be instantiated*.",
-          "Masuk akal: Shape hanyalah gagasan umum. Yang nyata adalah lingkaran, persegi panjang, dan seterusnya."
+          "Abstract class **tidak bisa dibuat objeknya**: `new Shape()` ditolak dengan pesan *Shape is abstract; cannot be instantiated*.",
+          "Masuk akal: \"bentuk\" hanyalah gagasan umum. Yang benar-benar bisa digambar adalah lingkaran, persegi panjang, dan sebagainya."
         ],
         changed: [["+", "Error: cannot be instantiated"]],
         frames: steps[2]
@@ -279,8 +279,8 @@
       {
         kind: "TEKNIK", short: "Subclass", title: "Subclass melengkapi cetak birunya",
         text: [
-          "Abstract class dipakai lewat **subclass**. Circle dan Rectangle meng-override `area()` dengan rumusnya, dan mewarisi `color`, `setColor()`, serta `getColor()` apa adanya.",
-          "Meski Shape tidak bisa di-`new`, konstruktornya tetap berjalan: `new Circle(7)` memanggil `Shape()` lebih dulu (rantai konstruktor)."
+          "Abstract class dipakai lewat **class anak**. Circle dan Rectangle mengisi `area()` dengan rumusnya, dan langsung mewarisi `color`, `setColor()`, serta `getColor()` tanpa menulis ulang.",
+          "Walau Shape tidak bisa di-`new`, konstruktornya tetap berjalan: `new Circle(7)` memanggil `Shape()` lebih dulu. Ini disebut **rantai konstruktor**."
         ],
         callout: { type: "IDE KUNCI", text: "Abstract class boleh berisi atribut, konstruktor, dan method biasa yang dibagi ke semua subclass, ditambah method abstract yang wajib mereka isi." },
         changed: [["+", "Circle dan Rectangle dengan area()"], ["+", "objek Circle: color = \"merah\""]],
@@ -289,8 +289,8 @@
       {
         kind: "SOLUSI", short: "Shape s", title: "Tipe abstract sebagai variabel",
         text: [
-          "Objeknya tidak bisa dibuat, tetapi **tipenya** tetap bisa dipakai: `Shape s = new Rectangle(4, 5)`.",
-          "`s.area()` menjalankan versi Rectangle (`20.0`) dan `c.area()` versi Circle (`153.86`). Polimorfisme dari pelajaran sebelumnya tetap bekerja."
+          "Objek Shape tidak bisa dibuat, tetapi **Shape tetap bisa dipakai sebagai label variabel**: `Shape s = new Rectangle(4, 5)`.",
+          "`s.area()` menjalankan versi Rectangle (`20.0`) dan `c.area()` versi Circle (`153.86`). Polimorfisme dari pelajaran sebelumnya tetap berlaku."
         ],
         changed: [["+", "Shape s → objek Rectangle"], ["+", "Output: 20.0 dan 153.86"]],
         frames: steps[4]
@@ -298,8 +298,8 @@
       {
         kind: "KASUS", short: "Lupa lagi", title: "Kasus: Trapezoid lupa lagi",
         text: [
-          "Trapezoid kembali ditambahkan tanpa `area()`. Kali ini compiler menolak: *Trapezoid is not abstract and does not override abstract method area() in Shape*.",
-          "Kesalahan yang dulu lolos diam-diam sekarang tertangkap sebelum program berjalan. Setelah `area()` ditulis, hasilnya benar: **16.0**."
+          "Trapezoid ditambahkan lagi tanpa `area()`. Kali ini compiler **menolak**: *Trapezoid is not abstract and does not override abstract method area() in Shape*.",
+          "Kesalahan yang dulu lolos diam-diam (luas 0.0) sekarang tertangkap sebelum program berjalan. Setelah `area()` ditulis, hasilnya benar: **16.0**."
         ],
         changed: [["+", "Error: does not override abstract method"], ["+", "Trapezoid.area() → 16.0"]],
         frames: steps[5]
@@ -307,7 +307,7 @@
       {
         kind: "KASUS", short: "Point", title: "Kasus: Point dari slide",
         text: [
-          "Contoh slide: `Point extends Shape`. Sebuah titik memang tidak punya luas, jadi `area()` mengembalikan 0. Bedanya dengan masalah di langkah 1: kini 0 adalah **keputusan sadar** class Point, bukan nilai bawaan yang terwarisi tanpa sengaja.",
+          "Contoh slide: `Point extends Shape`. Sebuah titik memang tidak punya luas, jadi `area()` mengembalikan 0. Bedanya dengan langkah 1: kini angka 0 adalah **keputusan sadar** class Point, bukan warisan yang tidak disengaja.",
           "`new Point()` menjalankan `Shape()` lalu `Point()`, dan `p.print()` mencetak `point: 0,0`."
         ],
         changed: [["+", "class Point extends Shape"], ["+", "Output: point: 0,0"]],

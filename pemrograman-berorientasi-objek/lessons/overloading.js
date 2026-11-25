@@ -241,8 +241,8 @@
       {
         kind: "MASALAH", short: "Empat nama", title: "Empat nama untuk satu ide",
         text: [
-          "Kalkulator perlu menjumlahkan dua int, dua double, tiga int, dan menggabungkan dua String. Tanpa overloading, setiap versi butuh nama sendiri: `tambahInt`, `tambahDouble`, `tambahTiga`, `gabung`.",
-          "Pemakai class harus menghafal **4 nama** untuk satu gagasan yang sama: menjumlahkan."
+          "Kalkulator bisa menjumlahkan dua bilangan bulat, dua bilangan desimal, tiga bilangan bulat, dan menyambung dua teks. Kalau setiap versi diberi nama berbeda, pemakainya harus hafal **4 nama**: `tambahInt`, `tambahDouble`, `tambahTiga`, `gabung`.",
+          "Padahal idenya sama: menambahkan."
         ],
         changed: [["+", "4 method dengan 4 nama"]],
         frames: steps[0]
@@ -250,18 +250,18 @@
       {
         kind: "TEKNIK", short: "Overloading", title: "Satu nama, banyak versi",
         text: [
-          "**Overloading**: beberapa method di class yang sama memakai **nama yang sama**, tetapi **daftar parameternya berbeda**, baik jumlahnya maupun tipenya.",
-          "Keempat versi kini bernama `tambah`. Pemakai cukup mengingat satu nama."
+          "**Overloading**: beberapa method boleh memakai **nama yang sama** asalkan **daftar parameternya berbeda**, entah jumlahnya atau tipenya.",
+          "Sekarang keempatnya bernama `tambah`. Pemakai cukup mengingat satu nama."
         ],
-        callout: { type: "PERLU DIKETAHUI", text: "Berbeda dengan overriding (signature harus sama, di subclass), overloading justru menuntut signature berbeda, biasanya di class yang sama." },
+        callout: { type: "ANALOGI", text: "Kata \"buka\" bisa untuk pintu, buku, atau aplikasi. Kita tahu maksudnya dari benda yang disebut setelahnya." },
         changed: [["~", "Nama method 4 → 1"], ["~", "Versi tambah() 0 → 4"]],
         frames: steps[1]
       },
       {
         kind: "TEKNIK", short: "Cocokkan tipe", title: "Compiler mencocokkan argumen",
         text: [
-          "`tambah(1, 2)`: kedua argumen int, maka dipilih `tambah(int, int)` dan hasilnya `3`.",
-          "`tambah(3.14, 0.0015)`: kedua argumen double, maka dipilih `tambah(double, double)` dan hasilnya `3.1415`. Ini contoh dari slide: simbol `+` di dalam keduanya pun berarti operasi berbeda, penjumlahan int dan penjumlahan double."
+          "Bagaimana Java tahu versi mana yang dipakai? Dari **argumen** yang dikirim. `tambah(1, 2)` mengirim dua bilangan bulat (int), jadi dipakai `tambah(int, int)` dan hasilnya `3`.",
+          "`tambah(3.14, 0.0015)` mengirim dua bilangan desimal (double), jadi dipakai `tambah(double, double)` dan hasilnya `3.1415`. Ini contoh dari slide."
         ],
         changed: [["+", "Output: 3"], ["+", "Output: 3.1415"]],
         frames: steps[2]
@@ -269,8 +269,8 @@
       {
         kind: "SOLUSI", short: "Static binding", title: "Static binding",
         text: [
-          "`tambah(1, 2, 3)` cocok dengan versi tiga parameter (`6`). `tambah(\"Bina\", \"Nusantara\")` cocok dengan versi String, dan `+` pada String berarti **menggabungkan**: `BinaNusantara`.",
-          "Semua pilihan ini dibuat **saat kompilasi**, sebelum program berjalan. Karena itu overloading disebut **static binding** atau *trivial polymorphism*. Slide menyebutnya juga **ad hoc polymorphism**: satu nama mewakili beberapa fungsi berbeda."
+          "`tambah(1, 2, 3)` punya tiga argumen, jadi cocok dengan versi tiga parameter: `6`. `tambah(\"Bina\", \"Nusantara\")` berisi teks, dan `+` pada teks berarti **menyambung**: `BinaNusantara`.",
+          "Semua pilihan ini sudah ditentukan compiler **sebelum program berjalan**, karena itu disebut **static binding**. Slide juga menyebutnya **ad hoc polymorphism**: satu nama untuk beberapa fungsi berbeda."
         ],
         callout: { type: "IDE KUNCI", text: "Overloading = polimorfisme saat kompilasi (statis). Overriding = polimorfisme saat runtime (dinamis)." },
         changed: [["+", "Output: 6 dan BinaNusantara"], ["~", "Baris output 2 → 4"]],
@@ -279,8 +279,8 @@
       {
         kind: "KASUS", short: "int → double", title: "Kasus: tidak ada yang persis",
         text: [
-          "`tambah(1, 2.5)`: tidak ada versi `tambah(int, double)`. Java boleh **melebarkan** int menjadi double tanpa kehilangan nilai, sehingga `tambah(double, double)` dipakai: `3.5`.",
-          "Contoh slide `3.2 + 3 = 6.2` bekerja dengan cara yang sama: `3` dilebarkan menjadi `3.0`. Ini **konversi tipe otomatis** (*coercion*), bukan generic. Generic dibahas di langkah 8."
+          "`tambah(1, 2.5)`: tidak ada versi untuk (int, double). Java boleh mengubah `1` menjadi `1.0` tanpa kehilangan nilai, lalu memakai `tambah(double, double)`: hasilnya `3.5`.",
+          "Contoh slide `3.2 + 3 = 6.2` bekerja dengan cara yang sama: `3` diubah menjadi `3.0`. Ini **konversi tipe otomatis**, bukan generic. Generic dibahas di langkah 8."
         ],
         changed: [["+", "Output: 3.5 dan 6.2"]],
         frames: steps[4]
@@ -288,8 +288,8 @@
       {
         kind: "KASUS", short: "Tipe kembalian", title: "Kasus: beda tipe kembalian saja",
         text: [
-          "Bagaimana jika menambah `double tambah(int a, int b)`? Parameternya sama dengan `int tambah(int a, int b)`, hanya tipe kembaliannya berbeda.",
-          "Compiler menolak: *method tambah(int,int) is already defined*. Dari pemanggilan `tambah(1, 2)` saja, compiler tidak bisa tahu versi mana yang dimaksud."
+          "Bolehkah menambah `double tambah(int a, int b)`? Parameternya sama dengan `int tambah(int a, int b)`, hanya tipe hasilnya yang berbeda.",
+          "Tidak boleh. Dari panggilan `tambah(1, 2)` saja, Java tidak bisa menebak versi mana yang dimaksud. Compiler menolak: *already defined*."
         ],
         callout: { type: "IDE KUNCI", text: "Signature untuk overloading = nama + jumlah, tipe, dan urutan parameter. Tipe kembalian tidak dihitung." },
         changed: [["+", "Error: already defined"]],
@@ -298,8 +298,8 @@
       {
         kind: "KASUS", short: "Tidak cocok", title: "Kasus: tidak ada versi yang cocok",
         text: [
-          "`tambah(true, 1)`: compiler mencoba keempat versi. boolean tidak bisa diubah menjadi int, double, atau String.",
-          "Hasilnya error *no suitable method found*. Lagi-lagi, kesalahan ketahuan saat kompilasi, bukan saat program dipakai."
+          "`tambah(true, 1)`: compiler mencoba keempat versi, tetapi nilai `true` (boolean) tidak bisa diubah menjadi angka atau teks.",
+          "Hasilnya error *no suitable method found*. Kesalahan ketahuan saat kode diperiksa, sebelum program dipakai."
         ],
         changed: [["+", "Error: no suitable method found"]],
         frames: steps[6]
@@ -307,10 +307,10 @@
       {
         kind: "TEKNIK", short: "Generic", title: "Parametric polymorphism: generic",
         text: [
-          "**Parametric polymorphism** (generic) membuat satu class atau method yang bekerja untuk berbagai tipe. `Kotak<T>` punya parameter tipe `T`, yang diisi saat objek dibuat: `Kotak<Integer>`, `Kotak<String>`.",
-          "`angka.ambil() + 5` menghasilkan `15`; `teks.ambil().length()` menghasilkan `4`. Compiler tetap memeriksa tipe: `Kotak<String>` diisi angka 10 langsung ditolak."
+          "**Generic** (parametric polymorphism) membuat satu class yang bisa dipakai untuk berbagai tipe. `Kotak<T>` punya \"slot tipe\" `T` yang diisi saat objek dibuat: `Kotak<Integer>` untuk angka, `Kotak<String>` untuk teks.",
+          "`angka.ambil() + 5` menghasilkan `15`, `teks.ambil().length()` menghasilkan `4`. Compiler tetap menjaga isinya: `Kotak<String>` diisi angka 10 langsung ditolak. `ArrayList<String>` yang sering dipakai juga contoh generic."
         ],
-        callout: { type: "PERLU DIKETAHUI", text: "`ArrayList<String>` dan `ArrayList<Integer>` yang sering dipakai adalah contoh generic dari pustaka Java." },
+        callout: { type: "ANALOGI", text: "Satu desain toples bisa dipakai untuk gula atau kopi. Labelnya ditulis saat toples dipakai, dan isinya harus sesuai label." },
         changed: [["+", "class Kotak<T>"], ["+", "Kotak<Integer> dan Kotak<String>"], ["+", "Error: incompatible types"]],
         frames: steps[7]
       },

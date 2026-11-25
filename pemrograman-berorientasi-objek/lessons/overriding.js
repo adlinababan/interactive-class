@@ -240,36 +240,38 @@
       {
         kind: "MASALAH", short: "Bebek salah", title: "Bebek yang bicara seperti Animal",
         text: [
-          "`Duck extends Animal`: Duck mewarisi semua method Animal, termasuk `print()`. Karena Duck belum punya `print()` sendiri, pemanggilan `objB.print()` naik ke Animal.",
-          "Hasilnya `This is a method from Class Animal`. Benar secara aturan pewarisan, tetapi salah untuk seekor bebek."
+          "`Duck extends Animal` artinya Duck adalah **anak** dari Animal. Seorang anak otomatis punya semua method milik induknya, termasuk `print()`.",
+          "Karena Duck belum menulis `print()` versinya sendiri, ia memakai milik Animal. Hasilnya bebek mencetak `This is a method from Class Animal`. Tidak error, tetapi jelas kurang tepat untuk seekor bebek."
         ],
+        callout: { type: "ANALOGI", text: "Anak yang belum punya kata-kata sendiri akan menirukan kalimat orang tuanya." },
         changed: [["+", "class Duck extends Animal"], ["+", "Objek Duck"], ["+", "Output milik Animal"]],
         frames: steps[0]
       },
       {
         kind: "TEKNIK", short: "Override", title: "Menulis ulang print()",
         text: [
-          "**Overriding**: subclass menulis ulang method yang sudah ada di superclass, dengan **signature yang sama**, yaitu nama, jumlah dan tipe parameter, serta tipe kembaliannya.",
-          "Sekarang Duck punya `print()` miliknya sendiri. Animal tetap menyimpan versinya untuk objek Animal."
+          "Solusinya, Duck menulis ulang `print()` miliknya sendiri. Ini disebut **override** (menimpa).",
+          "Syaratnya: nama method, jumlah dan tipe parameternya (gabungan ini disebut **signature**), serta tipe hasilnya harus **sama persis** dengan milik Animal. Versi Animal tidak hilang; ia tetap dipakai oleh objek Animal."
         ],
-        callout: { type: "IDE KUNCI", text: "Polymorphism berarti \"banyak bentuk\": satu nama method, perilakunya bergantung pada objek yang menjalankannya." },
+        callout: { type: "IDE KUNCI", text: "Polymorphism artinya \"banyak bentuk\": satu nama method, tetapi perilakunya mengikuti objek yang menjalankannya." },
         changed: [["+", "Duck.print()"], ["~", "Method di-override 0 → 1"]],
         frames: steps[1]
       },
       {
         kind: "TEKNIK", short: "Subtype", title: "Supertype dan subtype",
         text: [
-          "Setiap class mendefinisikan sebuah **tipe**. Tipe dari subclass disebut **subtype** (Duck), tipe dari superclass disebut **supertype** (Animal).",
-          "Variabel bertipe supertype boleh menunjuk objek subtype: `Animal objB = new Duck()`. Bebek adalah hewan, jadi penugasan ini sah. `objH` menunjuk objek Animal biasa."
+          "Di Java, variabel bertipe **induk** boleh menyimpan objek **anak**: `Animal objB = new Duck()`. Boleh, karena bebek memang hewan.",
+          "Tipe anak (Duck) disebut **subtype**, tipe induk (Animal) disebut **supertype**. Sementara itu `objH` menyimpan objek Animal biasa."
         ],
+        callout: { type: "ANALOGI", text: "Kotak berlabel \"Hewan\" boleh diisi bebek, kucing, atau ayam. Labelnya umum, isinya spesifik." },
         changed: [["+", "Animal objB → objek Duck"], ["+", "Animal objH → objek Animal"], ["~", "Objek 0 → 2"]],
         frames: steps[2]
       },
       {
         kind: "TEKNIK", short: "objH.print()", title: "Objek Animal, versi Animal",
         text: [
-          "`objH.print()`: objek yang ditunjuk `objH` adalah Animal, maka yang dijalankan `Animal.print()`.",
-          "Baris output pertama sama dengan slide: `This is a method from Class Animal`."
+          "`objH.print()`: isi kotak `objH` adalah objek Animal, jadi yang dijalankan `print()` milik Animal.",
+          "Output pertama: `This is a method from Class Animal`, sama seperti di slide."
         ],
         changed: [["+", "Output baris 1"]],
         frames: steps[3]
@@ -277,18 +279,18 @@
       {
         kind: "SOLUSI", short: "Dynamic binding", title: "Dynamic binding",
         text: [
-          "`objB.print()`: tipe variabelnya Animal, tetapi saat program **berjalan** (runtime) JVM melihat objek aslinya, yaitu Duck. Maka yang dijalankan `Duck.print()`.",
-          "Output kedua: `This is class Duck`. Pemilihan versi method saat runtime ini disebut **dynamic binding**, ciri **pure polymorphism**."
+          "`objB.print()`: label variabelnya Animal, tetapi **isinya** bebek. Saat program berjalan, Java melihat isinya, lalu menjalankan `print()` milik Duck.",
+          "Output kedua: `This is class Duck`. Cara memilih method berdasarkan objek saat program berjalan ini disebut **dynamic binding**."
         ],
-        callout: { type: "IDE KUNCI", text: "Variabel yang sama tipenya bisa menghasilkan perilaku berbeda, tergantung objek yang ditunjuknya." },
+        callout: { type: "IDE KUNCI", text: "Yang menentukan versi method adalah **isi** kotaknya (objek), bukan **label** kotaknya (tipe variabel)." },
         changed: [["+", "Output: This is class Duck"], ["~", "Baris output 1 → 2"]],
         frames: steps[4]
       },
       {
         kind: "KASUS", short: "Salah signature", title: "Kasus: parameter berbeda",
         text: [
-          "Bagaimana jika Duck menulis `print(String msg)`? Namanya sama, tetapi parameternya berbeda. Ini **overloading** (menambah versi baru), bukan overriding.",
-          "`objB.print()` tanpa argumen tidak cocok dengan `print(String)`, sehingga Java memakai `Animal.print()`. Program tetap jalan, tetapi bebek kembali bicara seperti Animal."
+          "Misalkan Duck menulis `print(String msg)`, dengan satu parameter. Namanya sama, tetapi **parameternya berbeda**, jadi ini bukan override. Ini method baru, disebut **overloading**.",
+          "Panggilan `objB.print()` tanpa argumen tidak cocok dengan versi baru itu, sehingga Java memakai `print()` milik Animal. Program tetap jalan, tetapi bebek kembali bicara seperti Animal."
         ],
         changed: [["~", "Duck.print() → Duck.print(String msg)"], ["~", "Method di-override 1 → 0"]],
         frames: steps[5]
@@ -296,20 +298,20 @@
       {
         kind: "KASUS", short: "@Override", title: "Kasus: @Override menangkap kesalahan",
         text: [
-          "Tambahkan anotasi `@Override` di atas method. Artinya: \"method ini harus menimpa method superclass\".",
-          "Karena `print(String)` tidak menimpa apa pun, compiler langsung menolak: *method does not override or implement a method from a supertype*. Kesalahan ketahuan sebelum program dijalankan."
+          "Tulis `@Override` di atas method. Artinya kita memberi tahu compiler: \"method ini harus menimpa method induknya\".",
+          "Karena `print(String)` tidak menimpa apa pun, compiler langsung menolak. Kesalahan ketahuan **sebelum** program dijalankan, bukan saat sudah dipakai orang."
         ],
-        callout: { type: "PERLU DIKETAHUI", text: "Biasakan menulis `@Override` setiap kali menimpa method. Tanpa anotasi, salah ketik signature lolos diam-diam seperti di langkah sebelumnya." },
+        callout: { type: "PERLU DIKETAHUI", text: "Biasakan menulis `@Override` setiap kali menimpa method. Tanpa anotasi ini, salah ketik seperti di langkah sebelumnya lolos tanpa peringatan." },
         changed: [["+", "@Override"], ["+", "Error kompilasi"]],
         frames: steps[6]
       },
       {
         kind: "KASUS", short: "Tipe variabel", title: "Kasus: objB.swim()",
         text: [
-          "Duck mendapat method baru `swim()`. Tetapi `objB.swim()` ditolak: *cannot find symbol*. Saat **kompilasi**, Java hanya tahu `objB` bertipe Animal, dan Animal tidak punya `swim()`.",
-          "Jika butuh method khusus Duck, gunakan variabel bertipe Duck: `Duck objD = new Duck()`. Sekarang `swim()` dan `print()` versi Duck bisa dipanggil."
+          "Duck punya method baru `swim()`. Tetapi `objB.swim()` ditolak compiler: *cannot find symbol*. Saat memeriksa kode, compiler hanya melihat **label** `objB`, yaitu Animal, dan Animal tidak punya `swim()`.",
+          "Kalau butuh method khusus Duck, pakai variabel berlabel Duck: `Duck objD = new Duck()`. Sekarang `swim()` boleh dipanggil."
         ],
-        callout: { type: "IDE KUNCI", text: "Tipe **variabel** menentukan method apa yang boleh dipanggil (dicek compiler). Tipe **objek** menentukan versi mana yang dijalankan (dipilih saat runtime)." },
+        callout: { type: "IDE KUNCI", text: "Label (tipe variabel) menentukan method apa yang **boleh dipanggil**. Isi (objek) menentukan versi mana yang **dijalankan**." },
         changed: [["+", "Duck.swim()"], ["+", "Error: cannot find symbol"], ["+", "Duck objD"]],
         frames: steps[7]
       },

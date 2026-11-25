@@ -32,10 +32,14 @@ shared/
   renderers/sort.{js,css}      Renderer panggung untuk pelajaran pengurutan
   renderers/oop.{js,css}       Renderer panggung untuk class, objek, dan inheritance
   renderers/net.{js,css}       Renderer panggung untuk arsitektur, jaringan, dan grafik keputusan
+  renderers/db.{js,css}        Renderer untuk basis data: tabel, halaman disk, B+ tree, panel SQL dan hasil
 algoritma-pemrograman/
   index.html                   Aplikasi kursus
   course.js                    Kerangka modul & pelajaran (dari Course Outline)
   lessons/*.js                 Data pelajaran (bubble-sort, class-objek, atribut-objek, inheritance)
+teknologi-basis-data/          COMP6799001 Database Technology (renderer db; angka diukur di PostgreSQL 16)
+  lessons/*.js                 Physical Design: indeks-workload, clustered-index, indeks-komposit-tuning
+                               SQL: query-himpunan, nested-query, agregasi-group-by, null-constraint-trigger
 pemrograman-berorientasi-objek/ COMP6820001 Object Oriented Programming (Java)
   lessons/*.js                 Polymorphism: overriding, overloading, polimorfisme-shape
                                Interface & Abstract Class: abstract-class, interface, interface-vs-abstract
