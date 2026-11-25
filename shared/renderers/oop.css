@@ -70,3 +70,18 @@
   .oop-bottom { grid-template-columns: minmax(0, 1fr); }
   .oop-out { min-height: 100px; }
 }
+
+/* abstract class & interface: balok transparan bergaris putus (tidak bisa dibuat objeknya) */
+.iso-box.abs .f-top, .iso-box.abs .f-left, .iso-box.abs .f-right { stroke-dasharray: 6 4; fill-opacity: .5; }
+.iso-pill.cls-head.abs text { font-style: italic; }
+.iso-pill.cls-head.interface rect { fill: #ecfeff; stroke: #22d3ee; }
+.iso-pill.cls-head.interface text { fill: #0e7490; }
+.iso-pill.mem.abstract rect { stroke-dasharray: 4 3; }
+.iso-pill.mem.abstract text { font-style: italic; }
+.iso-pill.link-label.impl rect { fill: #ecfeff; stroke: #22d3ee; }
+.iso-pill.link-label.impl text { fill: #0e7490; }
+.sv-code .an { color: #fdba74; }
+.iso-pill.mem.abstract text { fill: #4338ca; }
+/* pil panggilan method (mis. tambah(1, 2)) */
+.iso-pill.loose.call rect { fill: #fff; stroke: #a5b4fc; stroke-dasharray: none; }
+.iso-pill.loose.call text { fill: #3730a3; }

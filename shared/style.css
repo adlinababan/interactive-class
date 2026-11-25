@@ -216,8 +216,9 @@ code { font-family: var(--mono); font-size: .86em; background: var(--accent-soft
 .metric.total.bump { box-shadow: 0 0 0 4px rgba(139, 92, 246, .25), 0 14px 30px -14px rgba(99, 102, 241, .9); }
 
 .stage-card { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; box-shadow: var(--shadow-lg); overflow: hidden; }
-.stage-tools { display: flex; align-items: center; gap: 8px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
-.legend { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--ink-2); margin-right: auto; font-weight: 600; }
+.stage-tools { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px 6px; padding: 10px 12px 10px 16px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.stage-tools > .btn { flex-shrink: 0; padding: 6px 11px; font-size: 13px; }
+.legend { display: flex; flex: 1 1 150px; flex-wrap: wrap; gap: 6px; font-size: 12px; color: var(--ink-2); margin-right: auto; font-weight: 600; }
 .legend span { display: inline-flex; align-items: center; gap: 6px; background: var(--surface-2); border-radius: 99px; padding: 3px 10px 3px 7px; }
 .legend i { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
 .btn {
@@ -358,3 +359,5 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .loop-btn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .loop-btn.waiting::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--grad); transform-origin: left; animation: loop-fill var(--hold, 2800ms) linear forwards; }
 @keyframes loop-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+[hidden] { display: none !important; }

@@ -33,6 +33,21 @@
     return s;
   }
 
+  // Java (lesson.lang = "java")
+  const JKW = /\b(abstract|class|interface|extends|implements|new|public|private|protected|static|final|void|return|if|else|for|while|this|super|instanceof|import|package|default)\b/g;
+  const JTY = /\b(int|double|float|long|boolean|char|String|Object|Integer|Double)\b/g;
+  function highlightJava(line) {
+    const m = line.match(/^(.*?)(\/\/.*)?$/);
+    const parts = m[1].split(/("[^"]*")/);
+    let s = parts.map((p, i) => (i % 2
+      ? '<span class="st">' + esc(p) + "</span>"
+      : esc(p).replace(JKW, '<span class="kw">$1</span>').replace(JTY, '<span class="nb">$1</span>')
+          .replace(/(@[A-Za-z]+)/g, '<span class="an">$1</span>').replace(/\b(System\.out\.println)\b/g, '<span class="nb">$1</span>'))).join("");
+    s = s.replace(/(<span class="kw">(?:class|interface)<\/span> )([A-Za-z_]+)/, '$1<span class="fn">$2</span>');
+    if (m[2]) s += '<span class="cm">' + esc(m[2]) + "</span>";
+    return s;
+  }
+
   let st = null;
 
   // titik kamera untuk pil: ikut lebar teksnya agar tidak terpotong di tepi panggung
@@ -50,7 +65,7 @@
       sceneWrap.append(live);
       const sc = Iso.scene(sceneWrap, { label: "Diagram class dan objek" });
       const note = Iso.pill(sc.layers.fx, { cls: "note" }).show(false);
-      const code = h("pre", { class: "sv-code", "aria-label": "Kode Python" });
+      const code = h("pre", { class: "sv-code", "aria-label": lesson.lang === "java" ? "Kode Java" : "Kode Python" });
       const out = h("div", { class: "oop-out", "aria-label": "Output program" }, h("h5", null, "OUTPUT"), h("div", { class: "oop-lines" }));
       root.append(sceneWrap, h("div", { class: "sv-bottom oop-bottom" }, code, out));
       stage.innerHTML = "";
@@ -61,6 +76,7 @@
     render(f, opts) {
       if (!st) return;
       const instant = !!opts.instant;
+      const before = new Set(st.els.keys()), prevFlow = st.flowKey, prevOut = (st.outLines || []).slice(), prevMarks = st.prevMarks || {};
       const seen = new Set();
       st.anchors = {};
       const marks = f.marks || {};
@@ -71,7 +87,9 @@
       if (f.crowd) renderCrowd(f.crowd, instant, seen, camPts);
       (f.loose || []).forEach((l) => renderLoose(l, marks, instant, seen, camPts));
       (f.vars || []).forEach((v) => renderVar(v, marks, instant, seen, camPts));
-      (f.classes || []).forEach((c) => c.parent && renderLink({ id: "inh:" + c.id, from: "c:" + c.id + ".base", to: "c:" + c.parent + ".base", label: "mewarisi", inherit: true }, instant, seen));
+      const java = st.lesson.lang === "java";
+      (f.classes || []).forEach((c) => c.parent && renderLink({ id: "inh:" + c.id, from: "c:" + c.id + ".base", to: "c:" + c.parent + ".base", label: c.extLabel === false ? null : java ? "extends" : "mewarisi", inherit: true }, instant, seen));
+      (f.classes || []).forEach((c) => (c.impl || []).forEach((t, i) => renderLink({ id: "imp:" + c.id + ":" + t, from: "c:" + c.id + ".base", to: "c:" + t + ".base", label: "implements", inherit: true, impl: true, lift: i }, instant, seen)));
       (f.links || []).forEach((l, i) => renderLink({ id: "lk:" + (l.id || i), ...l }, instant, seen));
 
       // hapus yang tidak lagi ada
@@ -83,10 +101,42 @@
       renderCode(f);
       renderOut(f.out || [], instant);
       st.live.textContent = f.note || "";
+      if (!instant) playSounds(f, before, prevFlow, prevOut, prevMarks);
+      st.prevMarks = f.marks || {};
+      st.prevNote = f.note || "";
     },
 
     unmount() { st = null; }
   });
+
+  // ---------- suara (aktif bila halaman memuat shared/sfx.js) ----------
+  function playSounds(f, before, prevFlow, prevOut, prevMarks) {
+    if (!window.Sfx) return;
+    let drops = 0;
+    for (const id of st.els.keys()) {
+      if (before.has(id) || drops >= 6) continue;
+      if (id.startsWith("c:")) Sfx.play("drop", { pitch: 0.8 });
+      else if (id.startsWith("o:")) { Sfx.play("drop", { pitch: 1.1 }); Sfx.play("sparkle", { delay: 0.65 }); }
+      else continue;
+      drops++;
+    }
+    if (f.flow && st.flowKey !== prevFlow) Sfx.play(f.flow.kind === "err" ? "err" : "req", { delay: 0.1 });
+    const marks = f.marks || {};
+    const changed = (v) => Object.keys(marks).some((k) => marks[k] === v && prevMarks[k] !== v);
+    const ok = changed("ok"), out = f.out || [];
+    let same = 0;
+    while (same < prevOut.length && same < out.length && prevOut[same] === out[same]) same++;
+    const fresh = out.slice(same), errOut = fresh.some((ln) => ln.startsWith("!"));
+    const err = changed("err") || errOut;
+    if (err && !(f.flow && f.flow.kind === "err")) Sfx.play("err", { delay: 0.35 });   // satu bunyi error per frame
+    else if (ok) Sfx.play("ok", { delay: 0.6 });
+    else if (changed("new")) Sfx.play("link", { delay: 0.3 });
+    fresh.filter((ln) => !ln.startsWith("!")).slice(0, 3).forEach((ln, i) => Sfx.play("data", { delay: 0.75 + i * 0.15 }));
+    if ((f.note || "") !== (st.prevNote || "") && f.note && !ok && !err) {
+      if (f.tone === "alert") Sfx.play("alert", { delay: 0.2 });
+      else if (f.tone === "done") Sfx.play("done", { delay: 0.4 });
+    }
+  }
 
   // ---------- elemen ----------
   function getEl(id, make, instant, seen) {
@@ -113,11 +163,12 @@
       const head = Iso.pill(st.sc.layers.label, { cls: "cls-head", drop: d == null ? null : d + 200 });
       return { base, head, mem: {}, nodes: [base.g, head.g] };
     }, instant, seen);
-    e.base.theme((c.theme || "blue") + (marks[id] === "miss" ? " miss" : "")).set({ x: x - CLS.w / 2, y: y - CLS.w / 2, z: 0, w: CLS.w, d: CLS.w, h: CLS.h, base: 0 });
+    const abs = c.kind === "abstract" || c.kind === "interface";
+    e.base.theme((c.theme || "blue") + (abs ? " abs" : "") + (marks[id] === "miss" ? " miss" : "")).set({ x: x - CLS.w / 2, y: y - CLS.w / 2, z: 0, w: CLS.w, d: CLS.w, h: CLS.h, base: 0 });
     const mems = c.members || [];
     const zBase = CLS.h + 0.55, zHead = zBase + mems.length * STEP;
-    const headText = "class " + (c.title || c.id);
-    e.head.text(headText).cls("cls-head" + markCls(marks[id])).at(x, y, zHead);
+    const headText = (c.kind === "interface" ? "interface " : c.kind === "abstract" ? "abstract class " : "class ") + (c.title || c.id);
+    e.head.text(headText).cls("cls-head" + (abs ? " abs " + c.kind : "") + markCls(marks[id])).at(x, y, zHead);
     st.anchors[id] = [x, y, zHead];
     st.anchors[id + ".base"] = [x, y, CLS.h * 0.55];
     cam.push([x - 1.3, y - 1.3, 0], [x + 1.3, y + 1.3, 0]);
@@ -206,7 +257,7 @@
       const p = Iso.pill(st.sc.layers.label, { cls: "loose", drop: d });
       return { p, nodes: [p.g] };
     }, instant, seen);
-    e.p.text(l.text).cls("loose" + markCls(marks[id])).at(x, y, l.z || 0.6);
+    e.p.text(l.text).cls("loose" + (l.cls ? " " + l.cls : "") + markCls(marks[id])).at(x, y, l.z || 0.6);
     st.anchors[id] = [x, y, l.z || 0.6];
     camPill(cam, x, y, l.z || 0.6, l.text);
     cam.push([x, y, 0]);
@@ -238,13 +289,15 @@
       return { c, p, nodes: [c.g, p.g] };
     }, instant, seen);
     if (!a || !b) { e.c.hide(); e.p.show(false); return; }
-    const arc = l.inherit ? 0.35 : 0.6;
+    const arc = l.impl ? 0.75 + (l.lift || 0) * 0.4 : l.inherit ? 0.35 : 0.6;
     // panah warisan berjalan di depan balok (bukan di antara tumpukan label)
     const f0 = l.inherit ? [a[0] + 0.9, a[1] + 0.9, a[2]] : a, t0 = l.inherit ? [b[0] + 0.9, b[1] + 0.9, b[2]] : b;
     e.c.set({ from: f0, to: t0, arc, dashed: !!l.dashed || l.inherit });
     if (l.label) {
-      const mx = (f0[0] + t0[0]) / 2, my = (f0[1] + t0[1]) / 2, mz = (f0[2] + t0[2]) / 2 + arc * 0.5;
-      e.p.text(l.label).cls("link-label" + (l.inherit ? " inherit" : "")).at(mx, my, mz).show(true);
+      // label panah pewarisan diletakkan lebih dekat ke induk agar tidak menutupi anggota class anak
+      const k = l.inherit ? 0.8 : 0.5;
+      const mx = f0[0] + (t0[0] - f0[0]) * k, my = f0[1] + (t0[1] - f0[1]) * k, mz = f0[2] + (t0[2] - f0[2]) * k + arc * 0.5;
+      e.p.text(l.label).cls("link-label" + (l.inherit ? " inherit" : "") + (l.impl ? " impl" : "")).at(mx, my, mz).show(true);
     } else e.p.show(false);
   }
 
@@ -307,7 +360,7 @@
       st.code = ver;
       st.codeEl.innerHTML = "";
       versions[ver].forEach(([id, text], i) => {
-        st.codeEl.append(h("div", { class: "ln" + (id && id.startsWith("+") ? " new" : ""), "data-id": id || "", html: "<i>" + (i + 1) + "</i><span>" + (text ? highlight(text) : "&nbsp;") + "</span>" }));
+        st.codeEl.append(h("div", { class: "ln" + (id && id.startsWith("+") ? " new" : ""), "data-id": id || "", html: "<i>" + (i + 1) + "</i><span>" + (text ? (st.lesson.lang === "java" ? highlightJava(text) : highlight(text)) : "&nbsp;") + "</span>" }));
       });
     }
     let cur = null;

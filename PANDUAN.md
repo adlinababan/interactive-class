@@ -80,6 +80,21 @@ Anchor: `v:my_dog`, `o:o1`, `o:o1.a:name`, `c:Dog`, `c:Dog.m:sit`, `crowd`.
 
 Frame disusun dengan `OOPStory(keadaanAwal, metricsOf)`: ubah `S.s`, lalu panggil `S.snap({ line, note, flow, marks })`, dan `S.take()` untuk mengambil frame satu langkah. Metrik dihitung otomatis dari keadaan, dan semua output konsol harus dicocokkan dengan menjalankan programnya di Python.
 
+## Renderer "oop" untuk Java
+
+Pelajaran dengan `lang: "java"` mendapat pewarnaan sintaks Java dan label panah `extends`. Tambahan untuk kursus PBO:
+
+| Field | Isi |
+|---|---|
+| `classes[].kind` | `"abstract"` → *abstract class* (balok transparan bergaris putus, judul miring); `"interface"` → *interface* |
+| `classes[].impl` | Daftar interface yang di-*implements*, digambar sebagai panah putus-putus berlabel `implements` |
+| `classes[].extLabel: false` | Sembunyikan label `extends` bila panggung ramai |
+| `members[].kind: "abstract"` | Method abstract (pil miring bergaris putus) |
+| `loose[].cls: "call"` | Pil pemanggilan method, misalnya `tambah(1, 2)` |
+| `links[].inherit: true` | Panah gaya pewarisan untuk tautan buatan sendiri (mis. interface extends interface) |
+
+Pesan error compiler ditulis di `out` dengan awalan `!` dan nomor baris dihitung dari panel kode (`lineOf(versi, id)`), sehingga selalu cocok dengan yang dilihat mahasiswa. Semua versi kode di kursus PBO sudah dikompilasi dan dijalankan dengan `javac`/`java` 21.
+
 ## Renderer "net"
 
 Dipakai untuk arsitektur sistem, jaringan, dan analisis keputusan (biaya, skor). Tata letak memakai `(u, v)` seperti renderer "oop". Isi frame:
